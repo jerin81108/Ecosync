@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="EcoSync — AI-Powered Predictive Digital Twin for Zero-Emission Smart Factories. Monitor, predict, and prevent industrial problems before they happen." />
+  <title>EcoSync | Predictive Digital Twin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏭</text></svg>" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ==================== LOGIN SCREEN ==================== -->
+    <div id="login-screen" class="screen active">
+      <div class="login-bg">
+        <div class="login-grid"></div>
+        <div class="login-glow login-glow-1"></div>
+        <div class="login-glow login-glow-2"></div>
+        <div class="login-glow login-glow-3"></div>
+      </div>
+
+      <div class="login-container">
+        <div class="login-card">
+          <div class="login-logo">
+            <div class="logo-icon">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="22" stroke="url(#logoGrad)" stroke-width="2.5" fill="none"/>
+                <path d="M16 32 L24 16 L32 32" stroke="url(#logoGrad)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M20 26 h8" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="24" cy="12" r="2" fill="#00d4aa"/>
+                <defs>
+                  <linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48">
+                    <stop offset="0%" stop-color="#00d4aa"/>
+                    <stop offset="100%" stop-color="#3b82f6"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
+            <h1 class="login-title">Eco<span>Sync</span></h1>
+            <p class="login-subtitle">Predictive Digital Twin Platform</p>
+          </div>
+
+          <form id="login-form" autocomplete="off">
+            <div class="input-group">
+              <label for="login-email">Email</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 4 10 8 10-8"/></svg>
+                <input type="email" id="login-email" placeholder="admin@ecosync.io" value="admin@ecosync.io" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="login-password">Password</label>
+              <div class="input-wrapper">
+                <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
+                <input type="password" id="login-password" placeholder="••••••••" value="admin123" />
+              </div>
+            </div>
+
+            <button type="submit" id="login-btn" class="btn-primary">
+              <span>Sign In to Dashboard</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </form>
+
+          <div class="login-footer">
+            <p>🔒 Secured by AI-Powered Encryption</p>
+          </div>
+        </div>
+
+        <div class="login-features">
+          <div class="feature-item">
+            <div class="feature-icon">🔮</div>
+            <h3>Predictive AI</h3>
+            <p>Predict failures 30 minutes before they happen</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🌍</div>
+            <h3>Zero Emission</h3>
+            <p>Track & reduce carbon footprint in real-time</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">⚡</div>
+            <h3>Energy Efficient</h3>
+            <p>AI optimizes power consumption automatically</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== DASHBOARD SCREEN ==================== -->
+    <div id="dashboard-screen" class="screen">
+      <!-- Background -->
+      <div class="dash-bg">
+        <div class="dash-grid"></div>
+      </div>
+
+      <!-- Sidebar -->
+      <aside id="sidebar" class="sidebar">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">
+            <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+              <circle cx="24" cy="24" r="22" stroke="url(#sLogo)" stroke-width="2.5" fill="none"/>
+              <path d="M16 32 L24 16 L32 32" stroke="url(#sLogo)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 26 h8" stroke="url(#sLogo)" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="24" cy="12" r="2" fill="#00d4aa"/>
+              <defs>
+                <linearGradient id="sLogo" x1="0" y1="0" x2="48" y2="48">
+                  <stop offset="0%" stop-color="#00d4aa"/>
+                  <stop offset="100%" stop-color="#3b82f6"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="sidebar-brand">EcoSync</span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#" class="nav-item active" data-page="overview" id="nav-overview">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span>Overview</span>
+          </a>
+          <a href="#" class="nav-item" data-page="digital-twin" id="nav-digital-twin">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h20"/><path d="M5 20V8l7-5 7 5v12"/><path d="M9 20v-4h6v4"/><rect x="9" y="10" width="2" height="2"/><rect x="13" y="10" width="2" height="2"/></svg>
+            <span>Digital Twin</span>
+          </a>
+          <a href="#" class="nav-item" data-page="predictions" id="nav-predictions">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <span>Predictions</span>
+          </a>
+          <a href="#" class="nav-item" data-page="analytics" id="nav-analytics">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg>
+            <span>Analytics</span>
+          </a>
+          <a href="#" class="nav-item" data-page="alerts" id="nav-alerts">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Alerts</span>
+            <span class="nav-badge" id="alert-count-badge">3</span>
+          </a>
+          <a href="#" class="nav-item" data-page="reports" id="nav-reports">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
+            <span>Reports</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="sidebar-user">
+            <div class="user-avatar">JC</div>
+            <div class="user-info">
+              <span class="user-name">JCT Admin</span>
+              <span class="user-role">Factory Manager</span>
+            </div>
+          </div>
+          <button id="logout-btn" class="nav-item logout-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main id="main-content" class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <button id="sidebar-toggle" class="sidebar-toggle">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
+            <div class="topbar-title">
+              <h2 id="page-title">Factory Overview</h2>
+              <span class="topbar-date" id="current-date"></span>
+            </div>
+          </div>
+          <div class="topbar-right">
+            <div class="factory-status" id="factory-status">
+              <span class="status-dot pulse"></span>
+              <span>Factory Online</span>
+            </div>
+            <div class="topbar-actions">
+              <button class="topbar-btn" id="notification-btn" title="Notifications">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="notification-badge" id="notif-badge">5</span>
+              </button>
+              <button class="topbar-btn" id="fullscreen-btn" title="Fullscreen">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <!-- ========== OVERVIEW PAGE ========== -->
+        <div id="page-overview" class="page active">
+          <!-- Metrics Row -->
+          <section class="metrics-grid">
+            <div class="metric-card" id="metric-co2">
+              <div class="metric-header">
+                <div class="metric-icon co2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12a5 5 0 0 0 5 5 8 8 0 0 0 5 2 8 8 0 0 0 5-2 5 5 0 0 0 5-5"/><path d="M6 12a3 3 0 0 1 3-3 4 4 0 0 1 3-1 4 4 0 0 1 3 1 3 3 0 0 1 3 3"/></svg>
+                </div>
+                <span class="metric-trend up" id="co2-trend">↑ 3.2%</span>
+              </div>
+              <div class="metric-value" id="co2-value">420</div>
+              <div class="metric-label">CO₂ Level (ppm)</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill co2-bar" id="co2-bar" style="width: 60%"></div>
+              </div>
+              <div class="metric-range">
+                <span>Safe: &lt;500</span>
+                <span>Current Zone: <strong class="safe">Normal</strong></span>
+              </div>
+            </div>
+
+            <div class="metric-card" id="metric-temp">
+              <div class="metric-header">
+                <div class="metric-icon temp">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+                </div>
+                <span class="metric-trend up" id="temp-trend">↑ 5.1%</span>
+              </div>
+              <div class="metric-value" id="temp-value">36</div>
+              <div class="metric-label">Temperature (°C)</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill temp-bar" id="temp-bar" style="width: 45%"></div>
+              </div>
+              <div class="metric-range">
+                <span>Safe: &lt;60°C</span>
+                <span>Current Zone: <strong class="safe">Normal</strong></span>
+              </div>
+            </div>
+
+            <div class="metric-card" id="metric-humidity">
+              <div class="metric-header">
+                <div class="metric-icon humidity">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                </div>
+                <span class="metric-trend down" id="humidity-trend">↓ 1.8%</span>
+              </div>
+              <div class="metric-value" id="humidity-value">60</div>
+              <div class="metric-label">Humidity (%)</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill humidity-bar" id="humidity-bar" style="width: 60%"></div>
+              </div>
+              <div class="metric-range">
+                <span>Optimal: 40-70%</span>
+                <span>Current Zone: <strong class="safe">Optimal</strong></span>
+              </div>
+            </div>
+
+            <div class="metric-card" id="metric-power">
+              <div class="metric-header">
+                <div class="metric-icon power">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <span class="metric-trend up" id="power-trend">↑ 8.4%</span>
+              </div>
+              <div class="metric-value" id="power-value">15.0</div>
+              <div class="metric-label">Power Usage (kWh)</div>
+              <div class="metric-bar">
+                <div class="metric-bar-fill power-bar" id="power-bar" style="width: 55%"></div>
+              </div>
+              <div class="metric-range">
+                <span>Budget: 25 kWh</span>
+                <span>Current Zone: <strong class="safe">Normal</strong></span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Carbon Emission Summary -->
+          <section class="carbon-summary-section">
+            <div class="section-card carbon-calc-card">
+              <div class="section-header">
+                <h3>🧮 Carbon Emission Calculator</h3>
+                <span class="live-badge"><span class="live-dot"></span> Live Calculation</span>
+              </div>
+              <div class="carbon-calc-grid">
+                <div class="carbon-stat">
+                  <div class="carbon-stat-value" id="carbon-emission">12.3</div>
+                  <div class="carbon-stat-label">kg CO₂ emitted</div>
+                  <div class="carbon-stat-sub">Power × 0.82 factor</div>
+                </div>
+                <div class="carbon-stat">
+                  <div class="carbon-stat-value" id="carbon-budget">50.0</div>
+                  <div class="carbon-stat-label">kg CO₂ budget</div>
+                  <div class="carbon-stat-sub">Daily limit</div>
+                </div>
+                <div class="carbon-stat">
+                  <div class="carbon-stat-value highlight" id="carbon-remaining">37.7</div>
+                  <div class="carbon-stat-label">kg CO₂ remaining</div>
+                  <div class="carbon-stat-sub">Budget left today</div>
+                </div>
+                <div class="carbon-gauge-container">
+                  <canvas id="carbon-gauge" width="180" height="180"></canvas>
+                  <div class="carbon-gauge-label">
+                    <span id="carbon-percent">24.6%</span>
+                    <small>of budget used</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Charts Row -->
+          <section class="charts-grid">
+            <div class="section-card">
+              <div class="section-header">
+                <h3>📈 Emission & Temperature Trends</h3>
+                <div class="chart-controls">
+                  <button class="chart-btn active" data-range="1h">1H</button>
+                  <button class="chart-btn" data-range="6h">6H</button>
+                  <button class="chart-btn" data-range="24h">24H</button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="trends-chart"></canvas>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <h3>⚡ Power Consumption</h3>
+                <div class="chart-controls">
+                  <button class="chart-btn active" data-range="1h">1H</button>
+                  <button class="chart-btn" data-range="6h">6H</button>
+                  <button class="chart-btn" data-range="24h">24H</button>
+                </div>
+              </div>
+              <div class="chart-container">
+                <canvas id="power-chart"></canvas>
+              </div>
+            </div>
+          </section>
+
+          <!-- AI + Predictions Row -->
+          <section class="ai-predictions-grid">
+            <!-- Prediction Panel -->
+            <div class="section-card prediction-card">
+              <div class="section-header">
+                <h3>🔮 AI Prediction Panel</h3>
+                <span class="ai-badge">AI Engine Active</span>
+              </div>
+              <div class="predictions-list" id="predictions-list">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+
+            <!-- AI Recommendations -->
+            <div class="section-card ai-card">
+              <div class="section-header">
+                <h3>🤖 AI Recommendations</h3>
+                <button class="refresh-btn" id="refresh-ai">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                </button>
+              </div>
+              <div class="ai-recommendations" id="ai-recommendations">
+                <!-- Filled by JS -->
+              </div>
+              <div class="ai-actions">
+                <button class="btn-approve" id="approve-all-btn">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Approve All Actions
+                </button>
+                <button class="btn-secondary" id="dismiss-btn">Dismiss</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Alerts Section -->
+          <section class="alerts-section">
+            <div class="section-card">
+              <div class="section-header">
+                <h3>⚠️ Active Alerts</h3>
+                <span class="alert-summary" id="alert-summary">3 Active</span>
+              </div>
+              <div class="alerts-list" id="alerts-list">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========== DIGITAL TWIN PAGE ========== -->
+        <div id="page-digital-twin" class="page">
+          <section class="twin-section">
+            <div class="section-card twin-card">
+              <div class="section-header">
+                <h3>🏭 Factory Digital Twin</h3>
+                <span class="live-badge"><span class="live-dot"></span> Real-Time Sync</span>
+              </div>
+              <div class="factory-floor" id="factory-floor">
+                <div class="factory-machine" id="machine-1" data-machine="1">
+                  <div class="machine-visual">
+                    <div class="machine-body">
+                      <div class="machine-gear"></div>
+                    </div>
+                    <div class="machine-status-indicator online"></div>
+                  </div>
+                  <div class="machine-info">
+                    <h4>Machine 1</h4>
+                    <span class="machine-type">CNC Lathe</span>
+                    <div class="machine-stats">
+                      <div class="ms"><span class="ms-label">Temp</span><span class="ms-val" id="m1-temp">42°C</span></div>
+                      <div class="ms"><span class="ms-label">Load</span><span class="ms-val" id="m1-load">72%</span></div>
+                      <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val" id="m1-vibr">Normal</span></div>
+                    </div>
+                    <span class="machine-status-text online">● Online</span>
+                  </div>
+                </div>
+
+                <div class="factory-machine" id="machine-2" data-machine="2">
+                  <div class="machine-visual">
+                    <div class="machine-body warning-glow">
+                      <div class="machine-gear spin-fast"></div>
+                    </div>
+                    <div class="machine-status-indicator warning"></div>
+                  </div>
+                  <div class="machine-info">
+                    <h4>Machine 2</h4>
+                    <span class="machine-type">Hydraulic Press</span>
+                    <div class="machine-stats">
+                      <div class="ms"><span class="ms-label">Temp</span><span class="ms-val warning-text" id="m2-temp">78°C</span></div>
+                      <div class="ms"><span class="ms-label">Load</span><span class="ms-val warning-text" id="m2-load">94%</span></div>
+                      <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val warning-text" id="m2-vibr">High</span></div>
+                    </div>
+                    <span class="machine-status-text warning">⚠ Warning</span>
+                  </div>
+                </div>
+
+                <div class="factory-machine" id="machine-3" data-machine="3">
+                  <div class="machine-visual">
+                    <div class="machine-body danger-glow">
+                      <div class="machine-gear spin-erratic"></div>
+                    </div>
+                    <div class="machine-status-indicator danger"></div>
+                  </div>
+                  <div class="machine-info">
+                    <h4>Machine 3</h4>
+                    <span class="machine-type">Injection Molder</span>
+                    <div class="machine-stats">
+                      <div class="ms"><span class="ms-label">Temp</span><span class="ms-val danger-text" id="m3-temp">89°C</span></div>
+                      <div class="ms"><span class="ms-label">Load</span><span class="ms-val danger-text" id="m3-load">98%</span></div>
+                      <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val danger-text" id="m3-vibr">Critical</span></div>
+                    </div>
+                    <span class="machine-status-text danger">🔴 Critical</span>
+                  </div>
+                </div>
+
+                <div class="factory-machine" id="machine-4" data-machine="4">
+                  <div class="machine-visual">
+                    <div class="machine-body">
+                      <div class="machine-gear"></div>
+                    </div>
+                    <div class="machine-status-indicator online"></div>
+                  </div>
+                  <div class="machine-info">
+                    <h4>Machine 4</h4>
+                    <span class="machine-type">Assembly Robot</span>
+                    <div class="machine-stats">
+                      <div class="ms"><span class="ms-label">Temp</span><span class="ms-val" id="m4-temp">38°C</span></div>
+                      <div class="ms"><span class="ms-label">Load</span><span class="ms-val" id="m4-load">55%</span></div>
+                      <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val" id="m4-vibr">Normal</span></div>
+                    </div>
+                    <span class="machine-status-text online">● Online</span>
+                  </div>
+                </div>
+
+                <div class="factory-machine" id="machine-5" data-machine="5">
+                  <div class="machine-visual">
+                    <div class="machine-body offline-body">
+                      <div class="machine-gear"></div>
+                    </div>
+                    <div class="machine-status-indicator offline"></div>
+                  </div>
+                  <div class="machine-info">
+                    <h4>Machine 5</h4>
+                    <span class="machine-type">Welding Unit</span>
+                    <div class="machine-stats">
+                      <div class="ms"><span class="ms-label">Temp</span><span class="ms-val muted" id="m5-temp">--°C</span></div>
+                      <div class="ms"><span class="ms-label">Load</span><span class="ms-val muted" id="m5-load">0%</span></div>
+                      <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val muted" id="m5-vibr">Off</span></div>
+                    </div>
+                    <span class="machine-status-text offline">⏸ Maintenance</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========== PREDICTIONS PAGE ========== -->
+        <div id="page-predictions" class="page">
+          <section class="predictions-full-section">
+            <div class="section-card">
+              <div class="section-header">
+                <h3>🔮 Predictive Analytics Engine</h3>
+                <span class="ai-badge">Deep Learning Active</span>
+              </div>
+              <p class="section-desc">AI analyzes historical + live data to predict future issues. Predictions refresh every 30 seconds.</p>
+
+              <div class="predictions-dashboard" id="predictions-dashboard">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <h3>📊 Prediction Accuracy History</h3>
+              </div>
+              <div class="chart-container">
+                <canvas id="prediction-accuracy-chart"></canvas>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========== ANALYTICS PAGE ========== -->
+        <div id="page-analytics" class="page">
+          <section class="analytics-section">
+            <div class="analytics-grid">
+              <div class="section-card">
+                <div class="section-header">
+                  <h3>🌍 Carbon Emissions Over Time</h3>
+                </div>
+                <div class="chart-container large">
+                  <canvas id="carbon-history-chart"></canvas>
+                </div>
+              </div>
+
+              <div class="section-card">
+                <div class="section-header">
+                  <h3>⚡ Energy Breakdown by Machine</h3>
+                </div>
+                <div class="chart-container large">
+                  <canvas id="energy-breakdown-chart"></canvas>
+                </div>
+              </div>
+
+              <div class="section-card full-width">
+                <div class="section-header">
+                  <h3>🏭 Factory Efficiency Score</h3>
+                </div>
+                <div class="efficiency-dashboard">
+                  <div class="efficiency-score" id="efficiency-score">
+                    <svg class="efficiency-ring" viewBox="0 0 200 200">
+                      <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+                      <circle cx="100" cy="100" r="85" fill="none" stroke="url(#effGrad)" stroke-width="12"
+                        stroke-dasharray="534" stroke-dashoffset="134" stroke-linecap="round"
+                        transform="rotate(-90 100 100)" id="efficiency-ring-fill"/>
+                      <defs>
+                        <linearGradient id="effGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#00d4aa"/>
+                          <stop offset="100%" stop-color="#3b82f6"/>
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div class="efficiency-text">
+                      <span class="eff-value" id="eff-value">75</span>
+                      <span class="eff-label">Efficiency Score</span>
+                    </div>
+                  </div>
+                  <div class="efficiency-breakdown">
+                    <div class="eff-item"><span class="eff-dot green"></span><span>Energy Efficiency</span><strong id="eff-energy">82%</strong></div>
+                    <div class="eff-item"><span class="eff-dot blue"></span><span>Machine Uptime</span><strong id="eff-uptime">91%</strong></div>
+                    <div class="eff-item"><span class="eff-dot purple"></span><span>Carbon Score</span><strong id="eff-carbon">68%</strong></div>
+                    <div class="eff-item"><span class="eff-dot amber"></span><span>Prediction Accuracy</span><strong id="eff-prediction">85%</strong></div>
+                    <div class="eff-item"><span class="eff-dot cyan"></span><span>Overall OEE</span><strong id="eff-oee">75%</strong></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========== ALERTS PAGE ========== -->
+        <div id="page-alerts" class="page">
+          <section class="alerts-full-section">
+            <div class="section-card">
+              <div class="section-header">
+                <h3>⚠️ Alert Center</h3>
+                <div class="alert-filters">
+                  <button class="alert-filter active" data-filter="all">All</button>
+                  <button class="alert-filter" data-filter="critical">Critical</button>
+                  <button class="alert-filter" data-filter="warning">Warning</button>
+                  <button class="alert-filter" data-filter="info">Info</button>
+                </div>
+              </div>
+              <div class="alerts-full-list" id="alerts-full-list">
+                <!-- Filled by JS -->
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========== REPORTS PAGE ========== -->
+        <div id="page-reports" class="page">
+          <section class="reports-section">
+            <div class="section-card">
+              <div class="section-header">
+                <h3>📄 Factory Reports</h3>
+              </div>
+              <div class="reports-grid">
+                <div class="report-card">
+                  <div class="report-icon">📊</div>
+                  <h4>Daily Summary Report</h4>
+                  <p>Carbon emissions, power usage, and machine health summary for today.</p>
+                  <button class="btn-primary btn-sm" id="generate-daily-report">Generate Report</button>
+                </div>
+                <div class="report-card">
+                  <div class="report-icon">📈</div>
+                  <h4>Weekly Analytics</h4>
+                  <p>Trend analysis, efficiency metrics, and AI prediction accuracy report.</p>
+                  <button class="btn-primary btn-sm" id="generate-weekly-report">Generate Report</button>
+                </div>
+                <div class="report-card">
+                  <div class="report-icon">🌍</div>
+                  <h4>Emission Compliance</h4>
+                  <p>Carbon footprint analysis against regulatory standards and ESG goals.</p>
+                  <button class="btn-primary btn-sm" id="generate-emission-report">Generate Report</button>
+                </div>
+                <div class="report-card">
+                  <div class="report-icon">🤖</div>
+                  <h4>AI Insights Report</h4>
+                  <p>AI predictions, recommendations, and automated actions log.</p>
+                  <button class="btn-primary btn-sm" id="generate-ai-report">Generate Report</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-header">
+                <h3>📋 Generated Reports</h3>
+              </div>
+              <div class="reports-history" id="reports-history">
+                <div class="report-history-empty">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  <p>No reports generated yet. Click a button above to generate.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- ==================== FLOATING AI CHATBOT ==================== -->
+    <div id="ai-chat-widget" class="ai-chat-widget">
+      <!-- Floating Trigger Button -->
+      <button id="ai-chat-toggle" class="ai-chat-toggle" title="Chat with EcoSync AI Copilot">
+        <div class="chat-btn-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="chat-pulse-dot"></span>
+        </div>
+        <span class="chat-btn-label">AI Copilot</span>
+      </button>
+
+      <!-- Chat Drawer Window -->
+      <div id="ai-chat-window" class="ai-chat-window">
+        <!-- Chat Header -->
+        <div class="chat-header">
+          <div class="chat-header-info">
+            <div class="chat-avatar">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="10" rx="2"></rect>
+                <circle cx="12" cy="5" r="2"></circle>
+                <path d="M12 7v4"></path>
+                <line x1="8" y1="16" x2="8" y2="16"></line>
+                <line x1="16" y1="16" x2="16" y2="16"></line>
+              </svg>
+              <span class="chat-status-online"></span>
+            </div>
+            <div>
+              <div class="chat-title">EcoSync Copilot</div>
+              <div class="chat-subtitle">Digital Twin Project Specialist</div>
+            </div>
+          </div>
+          <button id="chat-close-btn" class="chat-close-btn" title="Close Chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <!-- Suggestion Chips -->
+        <div class="chat-chips-container">
+          <span class="chat-chips-label">Quick Inquiries:</span>
+          <div class="chat-chips" id="chat-chips">
+            <button class="chat-chip" data-query="Why is Machine 3 in critical status?">⚠️ Machine 3 Overheat</button>
+            <button class="chat-chip" data-query="Approve all AI mitigations and cool Machine 3">⚡ Fix & Cool Machine 3</button>
+            <button class="chat-chip" data-query="How does the AI predict machine failure?">🔮 How AI Predicts</button>
+            <button class="chat-chip" data-query="Explain the Carbon Emission calculation formula">🧮 Carbon Formula</button>
+            <button class="chat-chip" data-query="Show me the Digital Twin floor">🏭 Digital Twin Floor</button>
+            <button class="chat-chip" data-query="How to handle revenue loss from machinery changes?">👥 Manpower & Revenue</button>
+            <button class="chat-chip" data-query="Give me the 30-second judge pitch script">🎤 Judge Pitch Script</button>
+            <button class="chat-chip" data-query="How do I generate and download a report?">📄 How to Export Report</button>
+            <button class="chat-chip" data-query="What hardware sensors are used?">📡 Hardware & Sensors</button>
+          </div>
+        </div>
+
+        <!-- Messages Thread -->
+        <div class="chat-messages" id="chat-messages">
+          <div class="chat-msg bot-msg">
+            <div class="msg-bubble">
+              <p>👋 <strong>Welcome to EcoSync Copilot!</strong></p>
+              <p>I am your dedicated factory AI assistant. I have complete knowledge of this Predictive Digital Twin project—from live telemetry & algorithms to carbon calculations and judge pitch scripts.</p>
+              <p><em>Ask me anything or click a quick suggestion chip above!</em></p>
+            </div>
+            <span class="msg-time">Just now</span>
+          </div>
+        </div>
+
+        <!-- Input Bar -->
+        <form id="chat-input-form" class="chat-input-form">
+          <input type="text" id="chat-input" placeholder="Ask about machines, predictions, pitch..." autocomplete="off" />
+          <button type="submit" id="chat-send-btn" class="chat-send-btn" title="Send Message">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ==================== MANPOWER COMPENSATION & REVENUE POPUP MODAL ==================== -->
+    <div id="manpower-modal" class="modal-backdrop" style="display:none">
+      <div class="modal-card revenue-warning-modal">
+        <div class="modal-header">
+          <div class="modal-header-icon warning-pulse">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="modal-header-text">
+            <h3>⚠️ Machinery Changes: Revenue Loss Warning</h3>
+            <span class="modal-badge-amber">Production Capacity Deficit Detected</span>
+          </div>
+          <button id="modal-close-btn" class="modal-close" title="Close Modal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="modal-lead">
+            Recent corrective changes to factory machineries (throttling <strong>Machine 3</strong> by <strong>-25%</strong> and shifting mechanical load) have reduced machine throughput, projecting a potential revenue deficit for the company.
+          </p>
+
+          <div class="revenue-impact-grid">
+            <div class="impact-card danger">
+              <span class="impact-label">Line Output Deficit</span>
+              <span class="impact-val" id="impact-throughput">-18.4%</span>
+              <span class="impact-sub">~160 units / hr deficit</span>
+            </div>
+            <div class="impact-card danger">
+              <span class="impact-label">Projected Revenue Deficit</span>
+              <span class="impact-val" id="impact-revenue">-$3,850</span>
+              <span class="impact-sub">Per operating shift</span>
+            </div>
+            <div class="impact-card safe">
+              <span class="impact-label">Equipment Damage Averted</span>
+              <span class="impact-val">+$45,000</span>
+              <span class="impact-sub">Thermal trip prevented</span>
+            </div>
+          </div>
+
+          <div class="manpower-recommendation-box">
+            <div class="rec-icon">👥</div>
+            <div class="rec-content">
+              <h4>Action Required: Increase Floor Manpower to Maintain Revenue</h4>
+              <p>Deploy <strong>+4 Auxiliary Technicians</strong> across <strong>Assembly Line 4 & Aux Packaging Stations</strong> to compensate for machine speed reduction, recover the 18% throughput deficit, and maintain the company's daily revenue target.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="deploy-manpower-btn" class="btn-primary btn-manpower">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>Authorize & Increase Manpower (+4 Technicians)</span>
+          </button>
+          <button id="dismiss-modal-btn" class="btn-secondary">Acknowledge & Review Shift</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display:none">
+      <div class="loader-spinner"></div>
+      <p>Processing...</p>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
