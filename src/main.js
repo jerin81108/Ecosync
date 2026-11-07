@@ -20,12 +20,18 @@ const state = {
     remaining: 37.7,
   },
   machines: [
-    { id: 1, name: 'Machine 1', type: 'CNC Lathe', temp: 42, load: 72, vibr: 'Normal', status: 'online' },
-    { id: 2, name: 'Machine 2', type: 'Hydraulic Press', temp: 78, load: 94, vibr: 'High', status: 'warning' },
-    { id: 3, name: 'Machine 3', type: 'Injection Molder', temp: 89, load: 98, vibr: 'Critical', status: 'danger' },
-    { id: 4, name: 'Machine 4', type: 'Assembly Robot', temp: 38, load: 55, vibr: 'Normal', status: 'online' },
-    { id: 5, name: 'Machine 5', type: 'Welding Unit', temp: 0, load: 0, vibr: 'Off', status: 'offline' },
+    { id: 1, name: 'Machine 1', type: 'CNC Lathe', bay: 'Bay 1 - Machining', power: 3.8, temp: 42, load: 72, vibr: 'Normal', status: 'online', journeyPhase: 'Phase 1: Seed Prototype' },
+    { id: 2, name: 'Machine 2', type: 'Hydraulic Press', bay: 'Bay 2 - Stamping', power: 4.5, temp: 78, load: 94, vibr: 'High', status: 'warning', journeyPhase: 'Phase 1: Seed Prototype' },
+    { id: 3, name: 'Machine 3', type: 'Injection Molder', bay: 'Bay 3 - Molding', power: 5.2, temp: 89, load: 98, vibr: 'Critical', status: 'danger', journeyPhase: 'Phase 2: Pilot Plant' },
+    { id: 4, name: 'Machine 4', type: 'Assembly Robot', bay: 'Bay 4 - Robotics', power: 2.2, temp: 38, load: 55, vibr: 'Normal', status: 'online', journeyPhase: 'Phase 2: Pilot Plant' },
+    { id: 5, name: 'Machine 5', type: 'Welding Unit', bay: 'Bay 5 - Welding', power: 0.0, temp: 0, load: 0, vibr: 'Off', status: 'offline', journeyPhase: 'Phase 2: Pilot Plant' },
   ],
+  companyJourney: {
+    currentPhase: 2,
+    phaseName: 'Phase 2: Pilot Plant',
+    targetMachines: 8,
+    totalWorkforce: 16
+  },
   predictions: [
     {
       id: 'pred-1',
@@ -66,6 +72,13 @@ const state = {
       title: 'Reduce Machine-3 Load by 25%',
       desc: 'Throttles thermal dissipation from 89°C down to 68°C within 4.5 minutes.',
       impact: '⚡ Saves ~3.8 kWh power & stops thermal runaway',
+      productionLoss: '-18.4% throughput (~160 units/hr drop)',
+      revenueLoss: '-$3,850 / shift deficit',
+      workersNeeded: 4,
+      workerAction: 'Deploy 4 Auxiliary Technicians on Line 4 to compensate throughput',
+      workerCost: '$1,200 / shift',
+      damageAverted: '+$45,000 stator coil & mold burnout averted',
+      netBenefit: '+$39,950 net shift protection',
       checked: true,
       executed: false
     },
@@ -74,6 +87,13 @@ const state = {
       title: 'Activate Secondary Chiller Unit B',
       desc: 'Forces rapid coolant circulation through hydraulic oil reservoirs.',
       impact: '❄ Cools Machine 2 & 3 manifolds by 14°C',
+      productionLoss: '-3.5% auxiliary loop draw',
+      revenueLoss: '-$480 / shift coolant & power cost',
+      workersNeeded: 1,
+      workerAction: 'Assign 1 HVAC maintenance technician to monitor Glycol loop pressure',
+      workerCost: '$300 / shift',
+      damageAverted: '+$18,000 manifold seal blowout averted',
+      netBenefit: '+$17,220 net protection',
       checked: true,
       executed: false
     },
@@ -82,6 +102,13 @@ const state = {
       title: 'Shift Batch #409 to Assembly Robot 4',
       desc: 'Rebalances factory floor load away from strained Hydraulic Press 2.',
       impact: '🌍 Prevents 8.4 kg CO₂ emission spike',
+      productionLoss: '-2.5% during staging transfer',
+      revenueLoss: '-$380 staging handling overhead',
+      workersNeeded: 2,
+      workerAction: 'Deploy 2 Material Logistics Handlers to re-route blank pallet feeds',
+      workerCost: '$450 / shift',
+      damageAverted: '+$12,500 assembly stoppage averted',
+      netBenefit: '+$11,670 net savings',
       checked: true,
       executed: false
     },
@@ -90,6 +117,13 @@ const state = {
       title: 'Enable Dynamic Eco-Pulse Inverter Mode',
       desc: 'Harmonizes motor voltage cycles to eliminate reactive power wastage.',
       impact: '⚡ Cuts idle energy draw by 12%',
+      productionLoss: '-1.5% cadence recalibration',
+      revenueLoss: '-$160 micro-adjustment overhead',
+      workersNeeded: 1,
+      workerAction: 'Assign 1 Electrical Systems Specialist to monitor inverter power harmonics',
+      workerCost: '$250 / shift',
+      damageAverted: '+$6,400 reactive power penalty avoided',
+      netBenefit: '+$5,990 net savings',
       checked: false,
       executed: false
     }
@@ -114,7 +148,65 @@ const state = {
     revenueTargetPerShift: 24000, // $
     projectedLoss: 0,
     modalShown: false
-  }
+  },
+  audioEnabled: false,
+  voiceAlertsEnabled: true,
+  microgrid: {
+    solarKw: 8.6,
+    efficiency: 92.4,
+    soc: 76.0,
+    capacity: 60.0,
+    currentKwh: 45.6,
+    flowKw: -2.8,
+    mode: 'auto_peak_shaving',
+    avoidedCo2: 18.4,
+    trees: 7.2
+  },
+  simulation: {
+    factoryLoad: 100,
+    renewableMix: 40,
+    tempOffset: 0,
+    ecoPulse: true,
+    chillerPrecool: false,
+    activePreset: 'benchmark',
+    projectedPower: 14.8,
+    projectedCarbon: 7.4,
+    shiftCarbon: 29.6,
+    stressIndex: 38,
+    esgRating: 'A+',
+    shiftCost: 21.31,
+    taxSaved: 1.20
+  },
+  workOrders: [
+    {
+      id: 'WO-2026-0894',
+      machineId: 3,
+      machineName: 'Machine 3 (Injection Molder)',
+      bay: 'Bay 2 - Section C',
+      priority: 'Critical',
+      status: 'Dispatched',
+      issue: 'Spindle thermal runaway (89°C) & primary cooling fluid breakdown.',
+      parts: ['SKF 6205-2RS Bearing', 'Glycol Chiller Filter', 'Coolant 50/50 Mix'],
+      technician: 'Marcus Vance (Shift Lead)',
+      lotoRequired: true,
+      createdAt: '10 mins ago'
+    },
+    {
+      id: 'WO-2026-0889',
+      machineId: 2,
+      machineName: 'Machine 2 (Hydraulic Press)',
+      bay: 'Bay 1 - Section B',
+      priority: 'High',
+      status: 'In Progress',
+      issue: '142 Hz harmonic vibration detected; proportional valve spool cavitation.',
+      parts: ['Valve Seal Kit #402', 'ISO-VG 46 Hydraulic Oil'],
+      technician: 'Elena Rostova (Hydraulics Spec)',
+      lotoRequired: true,
+      createdAt: '1 hour ago'
+    }
+  ],
+  activeInspectorMachineId: null,
+  fftAnimationId: null
 };
 
 // ==================== INITIALIZATION ====================
@@ -128,6 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initActions();
   initManpowerModal();
   initChatBot();
+  initAudioSystem();
+  initMicrogrid();
+  initFloorMap();
+  initMachineInspector();
+  initSimulationStudio();
+  initWorkOrders();
+  initAdminFleet();
   startTelemetrySimulation();
   updateDate();
 });
@@ -204,11 +303,18 @@ function navigateToPage(targetPage) {
     'overview': 'Factory Overview',
     'digital-twin': 'Digital Twin Model',
     'predictions': 'Predictive AI Engine',
+    'simulation': 'What-If Simulation Studio',
     'analytics': 'Factory Analytics',
     'alerts': 'Alert Center',
-    'reports': 'Factory Reports & Compliance'
+    'reports': 'Factory Reports & Compliance',
+    'admin': 'Factory Administration & Fleet Scaling'
   };
   if (pageTitle) pageTitle.textContent = titleMap[targetPage] || 'Dashboard';
+
+  if (targetPage === 'admin') {
+    renderAdminMachineTable();
+    updateAdminKpiMetrics();
+  }
 
   if (window.innerWidth <= 768 && sidebar) {
     sidebar.classList.remove('open');
@@ -245,6 +351,7 @@ function initCharts() {
   initPredictionAccuracyChart();
   initCarbonHistoryChart();
   initEnergyBreakdownChart();
+  initSimulationChart();
 }
 
 function initTrendsChart() {
@@ -545,6 +652,13 @@ function computeSituationalRecommendations() {
       title: `Throttle Machine-3 Speed by 25% (Target: 68°C)`,
       desc: `Reduces mechanical friction and arrests stator coil thermal escalation currently at ${m3.temp}°C.`,
       impact: '⚡ Halts thermal trip & saves 3.8 kWh',
+      productionLoss: '-18.4% throughput (~160 units/hr drop)',
+      revenueLoss: '-$3,850 / shift deficit',
+      workersNeeded: 4,
+      workerAction: 'Deploy 4 Auxiliary Technicians on Finishing Line to compensate throughput',
+      workerCost: '$1,200 / shift',
+      damageAverted: '+$45,000 catastrophic stator burnout averted',
+      netBenefit: '+$39,950 net shift protection',
       checked: true,
       executed: false
     });
@@ -553,6 +667,13 @@ function computeSituationalRecommendations() {
       title: 'Engage Secondary Glycol Chiller Unit B (Loop 3)',
       desc: 'Forces active 8°C heat exchange fluid through hydraulic manifolds to purge core heat.',
       impact: '❄ Drops operating temp by ~14°C within 5 mins',
+      productionLoss: '-3.5% auxiliary thermal draw',
+      revenueLoss: '-$480 / shift coolant & power cost',
+      workersNeeded: 1,
+      workerAction: 'Assign 1 HVAC maintenance technician to monitor Glycol loop pressure',
+      workerCost: '$300 / shift',
+      damageAverted: '+$18,000 manifold seal blowout averted',
+      netBenefit: '+$17,220 net protection',
       checked: true,
       executed: false
     });
@@ -561,6 +682,13 @@ function computeSituationalRecommendations() {
       title: 'Deploy Auxiliary Floor Technicians (+4 on Line 4)',
       desc: 'Offsets the -18.4% throughput loss from Machine-3 throttling to safeguard shift revenue ($24,000 target).',
       impact: '👥 Restores line throughput to 100%',
+      productionLoss: '0.0% (Compensates for -18.4% deficit)',
+      revenueLoss: '$0 (Secures $24,000 daily quota)',
+      workersNeeded: 4,
+      workerAction: 'Execute manual buffer transfer & finishing line pacing',
+      workerCost: '$1,200 / shift',
+      damageAverted: '+$24,000 full shift revenue commitment secured',
+      netBenefit: '+$22,800 net revenue retained',
       checked: true,
       executed: false
     });
@@ -570,6 +698,13 @@ function computeSituationalRecommendations() {
       title: 'Machine-3 Safety Throttle Active (Load: 72%)',
       desc: 'Operating load held at -25% to sustain thermal safety margin at 68°C.',
       impact: '✔ Thermal trip averted & coil preserved',
+      productionLoss: '-18.4% without auxiliary workforce',
+      revenueLoss: '-$3,850 if uncompensated',
+      workersNeeded: 4,
+      workerAction: 'Maintain auxiliary workforce until full batch cooldown',
+      workerCost: '$1,200 / shift',
+      damageAverted: '+$45,000 equipment damage prevented',
+      netBenefit: '+$39,950 net savings',
       checked: true,
       executed: true
     });
@@ -582,6 +717,13 @@ function computeSituationalRecommendations() {
       title: 'Engage Flue Gas Scrubber & Activated Carbon Adsorber',
       desc: 'Diverts stack exhaust through catalytic calcium hydroxide filtration bed.',
       impact: '🌍 Lowers direct stack CO₂ output by 35%',
+      productionLoss: '-4.2% conveyor parasitic load',
+      revenueLoss: '-$620 / shift reagent consumption',
+      workersNeeded: 2,
+      workerAction: 'Deploy 2 Environmental Chemical Technicians for catalytic cartridge replenishment',
+      workerCost: '$600 / shift',
+      damageAverted: '+$14,500 statutory emissions fine & stop-work penalty',
+      netBenefit: '+$13,280 net savings',
       checked: true,
       executed: false
     });
@@ -590,6 +732,13 @@ function computeSituationalRecommendations() {
       title: 'Activate Clean Battery Storage (BESS) Peak-Shaving',
       desc: `Supplies ${Math.min(9.5, +(t.power * 0.35).toFixed(1))} kWh from clean stored solar reserves to bypass grid peak tariffs.`,
       impact: '⚡ Averts $420 peak-demand utility surcharge',
+      productionLoss: '0.0% throughput impact',
+      revenueLoss: '-$180 battery cycle amortization',
+      workersNeeded: 1,
+      workerAction: 'Assign 1 Electrical Systems Specialist to oversee inverter synchronization',
+      workerCost: '$280 / shift',
+      damageAverted: '+$4,800 peak utility surge tariff avoided',
+      netBenefit: '+$4,340 net cost reduction',
       checked: true,
       executed: false
     });
@@ -602,6 +751,13 @@ function computeSituationalRecommendations() {
       title: 'Relieve Hydraulic Pressure to 80% & Close Bypass Valve',
       desc: 'Dampens 142 Hz resonant harmonic oscillation and relieves valve manifold stress.',
       impact: '🛡 Prevents catastrophic $18,000 pump rupture',
+      productionLoss: '-8.0% stamping cycle tempo',
+      revenueLoss: '-$1,450 / shift throughput delay',
+      workersNeeded: 2,
+      workerAction: 'Assign 2 Tooling Technicians to oversee hydraulic pressure calibration',
+      workerCost: '$550 / shift',
+      damageAverted: '+$28,000 cylinder blow-out & die cracking averted',
+      netBenefit: '+$26,000 net protection',
       checked: true,
       executed: false
     });
@@ -610,6 +766,13 @@ function computeSituationalRecommendations() {
       title: 'Shift Batch #409 Workload to Assembly Robot 4',
       desc: 'Diverts heavy stamping queue to balanced robotic cell to unload Hydraulic Press 2.',
       impact: '⚖ Balances line load & reduces cycle strain by 32%',
+      productionLoss: '-2.5% during staging transfer',
+      revenueLoss: '-$380 staging handling',
+      workersNeeded: 2,
+      workerAction: 'Deploy 2 Material Logistics Handlers to re-route blank pallet feeds',
+      workerCost: '$450 / shift',
+      damageAverted: '+$12,500 assembly stoppage averted',
+      netBenefit: '+$11,670 net savings',
       checked: true,
       executed: false
     });
@@ -622,6 +785,13 @@ function computeSituationalRecommendations() {
       title: 'Authorize Floor Technicians (+4) for Manual Line Finishing',
       desc: 'Compensates for the 18.4% capacity deficit caused by Machine-3 thermal protection.',
       impact: '💰 Fully preserves $24,000 daily shift revenue quota',
+      productionLoss: '0.0% (Deficit fully mitigated)',
+      revenueLoss: '$0 deficit ($24k quota achieved)',
+      workersNeeded: 4,
+      workerAction: 'Immediate manual buffer transfer & line pacing',
+      workerCost: '$1,200 / shift',
+      damageAverted: '+$24,000 shift revenue preserved',
+      netBenefit: '+$22,800 net revenue',
       checked: true,
       executed: false
     });
@@ -630,6 +800,13 @@ function computeSituationalRecommendations() {
       title: 'Re-index Buffer Conveyor Feed Velocity by -15%',
       desc: 'Synchronizes parts arrival rate with throttled injection molding cycle.',
       impact: '📦 Eliminates conveyor parts jamming & 0% scrap rate',
+      productionLoss: '-1.5% feed index delay',
+      revenueLoss: '-$180 indexing friction',
+      workersNeeded: 1,
+      workerAction: 'Assign 1 Conveyor Specialist to calibrate optical line sensors',
+      workerCost: '$220 / shift',
+      damageAverted: '+$7,800 parts jamming damage averted',
+      netBenefit: '+$7,400 net protection',
       checked: true,
       executed: false
     });
@@ -642,6 +819,13 @@ function computeSituationalRecommendations() {
       title: 'Initiate Zero-Drift Calibration on Wireless ESP32 Cluster',
       desc: 'Auto-calibrates MQ-135 electrochemical sensor and DHT22 digital thermal probe.',
       impact: '🎯 Calibrates sensor drift to ±0.2°C accuracy',
+      productionLoss: '0.0% (Zero downtime calibration)',
+      revenueLoss: '$0 / shift',
+      workersNeeded: 1,
+      workerAction: '1 QA Instrumentation Specialist for automated IoT verification',
+      workerCost: '$250 / shift',
+      damageAverted: '+$5,200 false alert stoppage averted',
+      netBenefit: '+$4,950 optimization',
       checked: true,
       executed: false
     });
@@ -650,6 +834,13 @@ function computeSituationalRecommendations() {
       title: 'Bank Clean Energy Surplus (4.2 kg CO₂) to Corporate ESG Ledger',
       desc: 'Audit logs verified 4.2 kg CO₂ emission surplus under statutory compliance cap.',
       impact: '🌿 Validates AAA Corporate ESG Sustainability Rating',
+      productionLoss: '0.0% production impact',
+      revenueLoss: '$0 / shift',
+      workersNeeded: 1,
+      workerAction: '1 Sustainability Auditor to confirm digital green certificate',
+      workerCost: '$200 / shift',
+      damageAverted: '+$3,500 carbon tax audit penalty avoided',
+      netBenefit: '+$3,300 corporate credit',
       checked: true,
       executed: false
     });
@@ -658,6 +849,13 @@ function computeSituationalRecommendations() {
       title: 'Enable High-Velocity Trajectory on Assembly Robot 4',
       desc: 'Thermal headroom allows +3.5% faster pick-and-place indexing without thermal penalty.',
       impact: '🚀 Yields +28 units/hour throughput boost',
+      productionLoss: '+3.5% Throughput Gain',
+      revenueLoss: '+$920 / shift revenue bonus',
+      workersNeeded: 1,
+      workerAction: '1 Robotics Engineer on standby for trajectory oversight',
+      workerCost: '$350 / shift',
+      damageAverted: '$0 (Operating in safe envelope)',
+      netBenefit: '+$570 net profit boost',
       checked: false,
       executed: false
     });
@@ -773,12 +971,57 @@ function renderRecommendations() {
   if (!container) return;
 
   container.innerHTML = state.recommendations.map(r => `
-    <div class="rec-item ${r.executed ? 'executed' : ''}">
+    <div class="rec-item ${r.executed ? 'executed' : ''}" id="rec-card-${r.id}">
       <input type="checkbox" class="rec-checkbox" data-id="${r.id}" ${r.checked ? 'checked' : ''} ${r.executed ? 'disabled' : ''}/>
       <div class="rec-content">
-        <div class="rec-title">${r.executed ? '✅ ' : ''}${r.title}</div>
+        <div class="rec-header-row">
+          <div class="rec-title">${r.executed ? '✅ ' : ''}${r.title}</div>
+          <div class="rec-badges">
+            ${r.executed ? '<span class="rec-badge-tag executed-tag">Executed ✔</span>' : '<span class="rec-badge-tag pending-tag">Pending Review</span>'}
+            ${r.workersNeeded ? `<span class="rec-badge-tag worker-tag">👷 +${r.workersNeeded} Workers</span>` : ''}
+          </div>
+        </div>
         <div class="rec-desc">${r.desc}</div>
         <div class="rec-impact">${r.impact}</div>
+
+        <!-- Economic & Workforce Loss Compensation Matrix -->
+        <div class="rec-economic-matrix">
+          <div class="econ-card econ-loss">
+            <div class="econ-header">
+              <span class="econ-icon">📉</span>
+              <span class="econ-label">Loss Faced If Implemented:</span>
+            </div>
+            <div class="econ-val danger-text">${r.revenueLoss || '-$3,850 / shift'}</div>
+            <div class="econ-sub">${r.productionLoss || '-18.4% capacity drop'}</div>
+          </div>
+
+          <div class="econ-card econ-workers">
+            <div class="econ-header">
+              <span class="econ-icon">👷</span>
+              <span class="econ-label">Workers to Implement to Manage Loss:</span>
+            </div>
+            <div class="econ-val warning-text">+${r.workersNeeded || 4} Floor Technicians</div>
+            <div class="econ-sub">${r.workerCost || '$1,200/shift'} • ${r.workerAction || 'Compensates throughput and fulfills daily quota'}</div>
+          </div>
+
+          <div class="econ-card econ-benefit">
+            <div class="econ-header">
+              <span class="econ-icon">🛡️</span>
+              <span class="econ-label">Catastrophic Failure Averted:</span>
+            </div>
+            <div class="econ-val safe-text">${r.damageAverted || '+$45,000'}</div>
+            <div class="econ-sub">Net Company Protection: <strong class="net-roi-strong">${r.netBenefit || '+$39,950'}</strong></div>
+          </div>
+        </div>
+
+        ${r.workersNeeded && !r.executed ? `
+          <div class="rec-worker-action-bar">
+            <button class="btn-quick-worker" onclick="window.quickDeployWorkerForRec('${r.id}')">
+              <span>👥 Authorize & Deploy +${r.workersNeeded} Workers Now</span>
+            </button>
+            <span class="worker-plan-hint">Auto-balances Line 4 buffer queue to sustain shift revenue</span>
+          </div>
+        ` : ''}
       </div>
     </div>
   `).join('');
@@ -790,6 +1033,17 @@ function renderRecommendations() {
     });
   });
 }
+
+// Global helper for inline quick-deploy worker button inside recommendations
+window.quickDeployWorkerForRec = function(recId) {
+  const rec = state.recommendations.find(r => r.id === recId);
+  const count = (rec && rec.workersNeeded) ? rec.workersNeeded : 4;
+  deployAuxiliaryManpower();
+  showToast(`Authorized & deployed +${count} Auxiliary Technicians for ${rec ? rec.title : 'Action'}. Line throughput fully compensated!`, 'success');
+  playIndustrialTone('success');
+  speakAlert(`Workforce compensation deployed. ${count} technicians assigned.`);
+  renderRecommendations();
+};
 
 // ==================== RENDER ALERTS ====================
 function renderAlerts(filter = 'all') {
@@ -1036,7 +1290,109 @@ function initActions() {
   if (weeklyBtn) weeklyBtn.addEventListener('click', () => generateReport('Weekly Analytics Report'));
   if (emissionBtn) emissionBtn.addEventListener('click', () => generateReport('Emission Compliance ESG Report'));
   if (aiBtn) aiBtn.addEventListener('click', () => generateReport('AI Insights & Predictions Report'));
+
+  // Global Emergency Stop Button (Topbar)
+  const globalEstopBtn = document.getElementById('btn-global-estop');
+  if (globalEstopBtn) {
+    globalEstopBtn.addEventListener('click', () => {
+      if (state.isPlantEStopped) {
+        resetPlantWideEStop();
+      } else {
+        executePlantWideEStop();
+      }
+    });
+  }
 }
+
+// ==================== PLANT-WIDE EMERGENCY SAFE STOP (E-STOP) ====================
+function executePlantWideEStop() {
+  state.isPlantEStopped = true;
+  state.machines.forEach(m => {
+    m.load = 0;
+    m.status = 'offline';
+    m.vibr = 'Off';
+    m.temp = Math.min(m.temp, 28);
+  });
+
+  state.telemetry.power = 3.2;
+  state.telemetry.carbon = +(3.2 * 0.82).toFixed(1);
+  state.telemetry.remaining = +(state.telemetry.budget - state.telemetry.carbon).toFixed(1);
+
+  updateTelemetryDisplay();
+  updateDigitalTwinDisplay();
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+
+  const estopBtn = document.getElementById('btn-global-estop');
+  if (estopBtn) {
+    estopBtn.classList.add('estop-active');
+    estopBtn.title = 'Factory is in Emergency Stop. Click to Reset/Restore';
+    estopBtn.innerHTML = '<span class="estop-icon">🔄</span><span class="estop-text">RESET E-STOP</span>';
+  }
+
+  const factoryStatusText = document.getElementById('factory-status-text') || document.querySelector('#factory-status span:last-child');
+  const factoryStatusDot = document.querySelector('#factory-status .status-dot');
+  if (factoryStatusText) factoryStatusText.textContent = '⛔ EMERGENCY STOP';
+  if (factoryStatusDot) {
+    factoryStatusDot.className = 'status-dot danger-pulse';
+    factoryStatusDot.style.background = '#ef4444';
+  }
+
+  showToast('⛔ PLANT-WIDE EMERGENCY SAFE STOP EXECUTED: All machinery lines isolated & shut down!', 'danger');
+  playIndustrialTone('alert');
+  speakAlert('Plant-wide emergency stop activated. All machinery lines safely shut down.');
+
+  // Notify backend to prevent polling revert
+  fetch('/api/factory/estop', { method: 'POST' }).catch(() => {});
+}
+
+function resetPlantWideEStop() {
+  state.isPlantEStopped = false;
+  state.machines.forEach(m => {
+    m.load = 65;
+    m.status = 'online';
+    m.vibr = 'Normal';
+    m.temp = 42;
+  });
+
+  state.telemetry.power = 14.5;
+  state.telemetry.carbon = +(14.5 * 0.82).toFixed(1);
+  state.telemetry.remaining = +(state.telemetry.budget - state.telemetry.carbon).toFixed(1);
+
+  updateTelemetryDisplay();
+  updateDigitalTwinDisplay();
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+
+  const estopBtn = document.getElementById('btn-global-estop');
+  if (estopBtn) {
+    estopBtn.classList.remove('estop-active');
+    estopBtn.title = 'Plant-Wide Emergency Safe Stop (E-STOP)';
+    estopBtn.innerHTML = '<span class="estop-icon">⛔</span><span class="estop-text">E-STOP</span>';
+  }
+
+  const factoryStatusText = document.getElementById('factory-status-text') || document.querySelector('#factory-status span:last-child');
+  const factoryStatusDot = document.querySelector('#factory-status .status-dot');
+  if (factoryStatusText) factoryStatusText.textContent = 'Factory Online';
+  if (factoryStatusDot) {
+    factoryStatusDot.className = 'status-dot pulse';
+    factoryStatusDot.style.background = 'var(--accent-primary)';
+  }
+
+  showToast('✔ Factory Emergency Stop Reset: Machinery restored to nominal operating state.', 'success');
+  playIndustrialTone('success');
+  speakAlert('Emergency stop reset. Factory systems back online.');
+
+  // Notify backend
+  fetch('/api/factory/reset', { method: 'POST' }).catch(() => {});
+}
+
+window.executePlantWideEStop = executePlantWideEStop;
+window.resetPlantWideEStop = resetPlantWideEStop;
 
 // ==================== DYNAMIC MULTI-CATEGORY REPORT GENERATION ====================
 function getActiveSituationDiagnostic() {
@@ -1500,6 +1856,11 @@ async function fetchLiveData() {
 }
 
 function simulateLocalStep() {
+  if (state.isPlantEStopped) {
+    updateTelemetryDisplay();
+    return;
+  }
+
   // Minor natural fluctuations
   const deltaTemp = (Math.random() - 0.48) * 0.4;
   const deltaCo2 = (Math.random() - 0.48) * 4;
@@ -1520,6 +1881,11 @@ function simulateLocalStep() {
 }
 
 function applyTelemetry(data) {
+  if (state.isPlantEStopped) {
+    updateTelemetryDisplay();
+    return;
+  }
+
   if (data.co2) state.telemetry.co2 = data.co2;
   if (data.temp) state.telemetry.temp = data.temp;
   if (data.humidity) state.telemetry.humidity = data.humidity;
@@ -1528,6 +1894,14 @@ function applyTelemetry(data) {
   if (data.machines) {
     state.machines = data.machines;
     updateDigitalTwinDisplay();
+  }
+  if (data.microgrid) {
+    Object.assign(state.microgrid, data.microgrid);
+    updateMicrogridDisplay();
+  }
+  if (data.work_orders) {
+    state.workOrders = data.work_orders;
+    renderWorkOrdersTable();
   }
   if (data.predictions) {
     state.predictions = data.predictions;
@@ -1616,38 +1990,67 @@ function pushChartData() {
 
 function updateDigitalTwinDisplay() {
   state.machines.forEach(m => {
+    // 1. Traditional machine card
     const el = document.getElementById(`machine-${m.id}`);
-    if (!el) return;
+    if (el) {
+      const tempEl = document.getElementById(`m${m.id}-temp`);
+      const loadEl = document.getElementById(`m${m.id}-load`);
+      const vibrEl = document.getElementById(`m${m.id}-vibr`);
 
-    const tempEl = document.getElementById(`m${m.id}-temp`);
-    const loadEl = document.getElementById(`m${m.id}-load`);
-    const vibrEl = document.getElementById(`m${m.id}-vibr`);
+      if (tempEl) tempEl.textContent = `${m.temp}°C`;
+      if (loadEl) loadEl.textContent = `${m.load}%`;
+      if (vibrEl) vibrEl.textContent = m.vibr;
 
-    if (tempEl) tempEl.textContent = `${m.temp}°C`;
-    if (loadEl) loadEl.textContent = `${m.load}%`;
-    if (vibrEl) vibrEl.textContent = m.vibr;
+      const indicator = el.querySelector('.machine-status-indicator');
+      const statusText = el.querySelector('.machine-status-text');
+      const visual = el.querySelector('.machine-body');
 
-    const indicator = el.querySelector('.machine-status-indicator');
-    const statusText = el.querySelector('.machine-status-text');
-    const visual = el.querySelector('.machine-body');
-
-    if (indicator) {
-      indicator.className = `machine-status-indicator ${m.status}`;
+      if (indicator) {
+        indicator.className = `machine-status-indicator ${m.status}`;
+      }
+      if (statusText) {
+        statusText.className = `machine-status-text ${m.status}`;
+        statusText.textContent = m.status === 'online' ? '● Online' : m.status === 'warning' ? '⚠ Warning' : (m.status === 'danger' ? '🔴 Critical' : '⏸ Maintenance');
+      }
+      if (visual) {
+        visual.className = 'machine-body';
+        if (m.status === 'warning') visual.classList.add('warning-glow');
+        if (m.status === 'danger') visual.classList.add('danger-glow');
+      }
     }
-    if (statusText) {
-      statusText.className = `machine-status-text ${m.status}`;
-      statusText.textContent = m.status === 'online' ? '● Online' : m.status === 'warning' ? '⚠ Warning' : '🔴 Critical';
+
+    // 2. 2.5D Floor Map Pod
+    const podEl = document.getElementById(`map-pod-${m.id}`);
+    if (podEl) {
+      podEl.className = `map-machine-pod ${m.status} ${m.status === 'danger' ? 'pulse-danger' : ''}`;
+      const halo = podEl.querySelector('.pod-halo');
+      if (halo) {
+        halo.className = `pod-halo ${m.status}-halo`;
+      }
+      const badge = podEl.querySelector('.pod-badge-status');
+      if (badge) {
+        badge.className = `pod-badge-status ${m.status}-badge`;
+        badge.textContent = m.status === 'online' ? '● Online' : m.status === 'warning' ? '⚠️ 142 Hz Flutter' : (m.status === 'danger' ? '🔴 Critical Overheat' : '⏸ Maintenance');
+      }
+      const mapTemp = document.getElementById(`map-m${m.id}-temp`);
+      if (mapTemp) mapTemp.textContent = `${m.temp}°C`;
+      const mapLoad = document.getElementById(`map-m${m.id}-load`);
+      if (mapLoad) mapLoad.textContent = `${m.load}%`;
     }
-    if (visual) {
-      visual.className = 'machine-body';
-      if (m.status === 'warning') visual.classList.add('warning-glow');
-      if (m.status === 'danger') visual.classList.add('danger-glow');
+
+    // 3. Update active inspector modal if open
+    if (state.activeInspectorMachineId === m.id) {
+      updateOpenMachineInspector(m);
     }
   });
 }
 
 // ==================== TOAST & OVERLAY HELPERS ====================
 function showToast(msg, type = 'info') {
+  if (type === 'success') playIndustrialTone('success');
+  else if (type === 'danger') playIndustrialTone('alert');
+  else playIndustrialTone('click');
+
   const container = document.getElementById('toast-container');
   if (!container) return;
 
@@ -2086,6 +2489,18 @@ function mapSuggestedActionToButtons(actionKey) {
         { label: '📄 Generate ESG Report', action: 'generate_report' },
         { label: '📁 Go to Reports Tab', action: 'navigate_reports', secondary: true }
       ];
+    case 'navigate_simulation':
+      return [
+        { label: '🧪 Open What-If Studio', action: 'navigate_simulation' },
+        { label: '🏭 View Floor Map', action: 'open_floor_map', secondary: true }
+      ];
+    case 'inspect_machine_3':
+      return [
+        { label: '🔍 Inspect Machine 3 Diagnostics', action: 'inspect_machine_3' },
+        { label: '⚡ Mitigate Now', action: 'approve_mitigation', secondary: true }
+      ];
+    case 'open_floor_map':
+      return [{ label: '🏢 Open 2.5D Factory Floor Map', action: 'open_floor_map' }];
     default:
       return undefined;
   }
@@ -2104,6 +2519,18 @@ function handleChatAction(action) {
       break;
     case 'navigate_twin':
       navigateToPage('digital-twin');
+      break;
+    case 'navigate_simulation':
+      navigateToPage('simulation');
+      break;
+    case 'open_floor_map':
+      navigateToPage('digital-twin');
+      const btnMap = document.getElementById('btn-view-map');
+      if (btnMap) btnMap.click();
+      break;
+    case 'inspect_machine_3':
+      navigateToPage('digital-twin');
+      openMachineInspector(3);
       break;
     case 'navigate_predictions':
       navigateToPage('predictions');
@@ -2248,3 +2675,1489 @@ function scrollChatToBottom() {
     container.scrollTop = container.scrollHeight;
   }
 }
+
+// ===================================================================
+// EXTENDED STANDOUT FEATURES IMPLEMENTATION
+// 1. Audio Alarm Synthesizer & Speech Engine
+// 2. Renewable Microgrid & BESS Energy Manager
+// 3. 2.5D Interactive Factory Floor Map
+// 4. Machine Diagnostic Inspector (Heatmap + FFT + RUL)
+// 5. What-If Scenario Simulator & Carbon Sandbox
+// 6. Maintenance Work Order & Dispatch System
+// ===================================================================
+
+// ==================== 1. AUDIO ALARM SYSTEM ====================
+let audioCtx = null;
+function getAudioContext() {
+  if (!audioCtx) {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (AudioContextClass) audioCtx = new AudioContextClass();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playIndustrialTone(type = 'success') {
+  if (!state.audioEnabled) return;
+  try {
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+
+    if (type === 'success') {
+      // High-tech confirmation double chime (880 Hz -> 1174 Hz)
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.setValueAtTime(1174.66, now + 0.08);
+      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'alert') {
+      // Pulsing industrial alarm tone (540 Hz -> 420 Hz -> 540 Hz)
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(540, now);
+      osc.frequency.linearRampToValueAtTime(420, now + 0.15);
+      osc.frequency.linearRampToValueAtTime(540, now + 0.3);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } else if (type === 'click') {
+      // Subtle tactile blip
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1200, now);
+      gain.gain.setValueAtTime(0.04, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.05);
+    }
+  } catch (e) {
+    console.warn('Audio playback error', e);
+  }
+}
+
+function speakAlert(text) {
+  if (!state.audioEnabled || !state.voiceAlertsEnabled) return;
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1.05;
+    utterance.pitch = 0.95;
+    utterance.volume = 0.9;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function initAudioSystem() {
+  const audioBtn = document.getElementById('audio-alert-btn');
+  const audioPill = document.getElementById('audio-status-pill');
+  const audioIcon = document.getElementById('audio-icon');
+  if (!audioBtn) return;
+
+  audioBtn.addEventListener('click', () => {
+    state.audioEnabled = !state.audioEnabled;
+    if (state.audioEnabled) {
+      getAudioContext();
+      audioBtn.classList.add('active');
+      audioBtn.title = 'Audio Alarm Alerts (Active)';
+      if (audioPill) audioPill.textContent = 'ACTIVE';
+      if (audioIcon) {
+        audioIcon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+      }
+      playIndustrialTone('success');
+      showToast('Audio Alarm System Activated', 'success');
+      speakAlert('EcoSync Audio Alert System Online');
+    } else {
+      audioBtn.classList.remove('active');
+      audioBtn.title = 'Audio Alarm Alerts (Muted)';
+      if (audioPill) audioPill.textContent = 'MUTED';
+      if (audioIcon) {
+        audioIcon.innerHTML = '<path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+      }
+      showToast('Audio Alerts Muted', 'info');
+    }
+  });
+}
+
+// ==================== 2. RENEWABLE MICROGRID & BESS STORAGE ====================
+function initMicrogrid() {
+  const modeBtns = [
+    { id: 'mode-peak-shaving', mode: 'auto_peak_shaving' },
+    { id: 'mode-solar-priority', mode: 'solar_priority' },
+    { id: 'mode-battery-reserve', mode: 'battery_reserve' }
+  ];
+
+  modeBtns.forEach(({ id, mode }) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      setMicrogridMode(mode);
+      playIndustrialTone('click');
+    });
+  });
+
+  updateMicrogridDisplay();
+}
+
+function setMicrogridMode(mode) {
+  state.microgrid.mode = mode;
+  document.querySelectorAll('.microgrid-mode-btn').forEach(b => {
+    if (b.dataset.mode === mode) b.classList.add('active');
+    else b.classList.remove('active');
+  });
+
+  const flowLabel = document.getElementById('bess-flow-label');
+  const flowRateEl = document.getElementById('bess-flow-rate');
+
+  if (mode === 'auto_peak_shaving') {
+    state.microgrid.flowKw = -2.8;
+    if (flowLabel) flowLabel.textContent = 'Discharging to shave peak tariff';
+    if (flowRateEl) flowRateEl.textContent = '-2.8 kW Active';
+    showToast('Microgrid switched to Auto Peak Shaving', 'success');
+  } else if (mode === 'solar_priority') {
+    state.microgrid.flowKw = +1.2;
+    if (flowLabel) flowLabel.textContent = 'Storing surplus solar power';
+    if (flowRateEl) flowRateEl.textContent = '+1.2 kW Charging';
+    showToast('Microgrid switched to Solar Priority (Battery Charging)', 'info');
+  } else if (mode === 'battery_reserve') {
+    state.microgrid.flowKw = 0.0;
+    if (flowLabel) flowLabel.textContent = '100% Reserved for emergency backup';
+    if (flowRateEl) flowRateEl.textContent = '0.0 kW Standby';
+    showToast('BESS Locked in Emergency Reserve Mode', 'warning');
+  }
+
+  // Attempt backend sync if available
+  fetch('/api/microgrid/mode', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode })
+  }).catch(() => {});
+}
+
+function updateMicrogridDisplay() {
+  const mg = state.microgrid;
+  const solarKwEl = document.getElementById('solar-kw');
+  const solarEffEl = document.getElementById('solar-efficiency');
+  const solarMeter = document.getElementById('solar-meter');
+  const bessSocEl = document.getElementById('bess-soc');
+  const bessMeter = document.getElementById('bess-meter');
+  const bessKwhEl = document.getElementById('bess-kwh');
+  const offsetCo2El = document.getElementById('offset-co2');
+
+  if (solarKwEl) solarKwEl.textContent = mg.solarKw.toFixed(1);
+  if (solarEffEl) solarEffEl.textContent = `${mg.efficiency.toFixed(1)}% eff`;
+  if (solarMeter) solarMeter.style.width = `${Math.min(100, Math.round((mg.solarKw / 12) * 100))}%`;
+  if (bessSocEl) bessSocEl.textContent = mg.soc.toFixed(1);
+  if (bessMeter) bessMeter.style.width = `${mg.soc}%`;
+  if (bessKwhEl) bessKwhEl.textContent = `${mg.currentKwh.toFixed(1)} kWh`;
+  if (offsetCo2El) offsetCo2El.textContent = mg.avoidedCo2.toFixed(1);
+}
+
+// ==================== 3. 2.5D INTERACTIVE FACTORY FLOOR MAP ====================
+function initFloorMap() {
+  const btnMap = document.getElementById('btn-view-map');
+  const btnCards = document.getElementById('btn-view-cards');
+  const mapContainer = document.getElementById('factory-floor-map-container');
+  const cardsContainer = document.getElementById('factory-floor');
+
+  if (btnMap && btnCards && mapContainer && cardsContainer) {
+    btnMap.addEventListener('click', () => {
+      btnMap.classList.add('active');
+      btnCards.classList.remove('active');
+      mapContainer.style.display = 'block';
+      cardsContainer.style.display = 'none';
+      playIndustrialTone('click');
+    });
+
+    btnCards.addEventListener('click', () => {
+      btnCards.classList.add('active');
+      btnMap.classList.remove('active');
+      cardsContainer.style.display = 'grid';
+      mapContainer.style.display = 'none';
+      playIndustrialTone('click');
+    });
+  }
+
+  // Attach click listeners on floor map pods
+  document.querySelectorAll('.map-machine-pod').forEach(pod => {
+    pod.addEventListener('click', (e) => {
+      const machineId = parseInt(pod.dataset.machine, 10);
+      if (machineId) {
+        openMachineInspector(machineId);
+        playIndustrialTone('click');
+      }
+    });
+  });
+
+  // Attach click listeners on "Diagnostics" buttons in machine cards
+  document.querySelectorAll('.btn-inspect-machine').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const machineId = parseInt(btn.dataset.machine, 10);
+      if (machineId) {
+        openMachineInspector(machineId);
+        playIndustrialTone('click');
+      }
+    });
+  });
+}
+
+// ==================== 4. MACHINE DIAGNOSTIC INSPECTOR MODAL ====================
+function initMachineInspector() {
+  const closeBtn = document.getElementById('close-inspector-btn');
+  const modal = document.getElementById('machine-inspector-modal');
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeMachineInspector);
+  }
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeMachineInspector();
+    });
+  }
+
+  // Throttle Slider
+  const throttleSlider = document.getElementById('inspect-throttle-slider');
+  const throttleVal = document.getElementById('inspect-throttle-val');
+  if (throttleSlider && throttleVal) {
+    throttleSlider.addEventListener('input', (e) => {
+      const val = e.target.value;
+      throttleVal.textContent = `${val}%`;
+      const id = state.activeInspectorMachineId;
+      if (id) {
+        const m = state.machines.find(item => item.id === id);
+        if (m) {
+          m.load = parseInt(val, 10);
+          updateDigitalTwinDisplay();
+        }
+      }
+    });
+  }
+
+  // Chiller Button in Inspector
+  const coolBtn = document.getElementById('btn-cool-machine');
+  if (coolBtn) {
+    coolBtn.addEventListener('click', () => {
+      const id = state.activeInspectorMachineId;
+      const m = state.machines.find(item => item.id === id);
+      if (m) {
+        m.temp = Math.max(45, m.temp - 21);
+        m.status = 'online';
+        m.vibr = 'Normal';
+        updateDigitalTwinDisplay();
+        showToast(`${m.name} Secondary Chiller Engaged: Temperature dropped to ${m.temp}°C`, 'success');
+        playIndustrialTone('success');
+      }
+    });
+  }
+
+  // E-Stop Button in Inspector
+  const estopBtn = document.getElementById('btn-estop-machine');
+  if (estopBtn) {
+    estopBtn.addEventListener('click', () => {
+      const id = state.activeInspectorMachineId;
+      const m = state.machines.find(item => item.id === id);
+      if (m) {
+        m.load = 0;
+        m.temp = 32;
+        m.vibr = 'Off';
+        m.status = 'offline';
+        updateDigitalTwinDisplay();
+        showToast(`EMERGENCY STOP (E-STOP) EXECUTED ON ${m.name}`, 'danger');
+        playIndustrialTone('alert');
+        speakAlert(`Emergency stop triggered on ${m.name}`);
+      }
+    });
+  }
+
+  // Dispatch Work Order Button in Inspector
+  const woBtn = document.getElementById('btn-dispatch-wo-machine');
+  if (woBtn) {
+    woBtn.addEventListener('click', () => {
+      const id = state.activeInspectorMachineId || 3;
+      closeMachineInspector();
+      openWorkOrderModal(id);
+    });
+  }
+}
+
+function openMachineInspector(machineId) {
+  state.activeInspectorMachineId = machineId;
+  const m = state.machines.find(item => item.id === machineId) || state.machines[0];
+  const modal = document.getElementById('machine-inspector-modal');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('inspect-title');
+  const bayEl = document.getElementById('inspect-bay');
+  const serialEl = document.getElementById('inspect-serial');
+  const badgeEl = document.getElementById('inspect-status-badge');
+  const throttleSlider = document.getElementById('inspect-throttle-slider');
+  const throttleVal = document.getElementById('inspect-throttle-val');
+
+  const bayNames = {
+    1: 'Bay 1 - Section A (Precision Machining)',
+    2: 'Bay 1 - Section B (Heavy Forming)',
+    3: 'Bay 2 - Section C (High-Pressure Injection)',
+    4: 'Bay 3 - Section D (Robotic Line)',
+    5: 'Bay 3 - Section E (Welding Bay)'
+  };
+
+  if (titleEl) titleEl.textContent = `${m.name} (${m.type})`;
+  if (bayEl) bayEl.textContent = bayNames[m.id] || `Bay ${m.id}`;
+  if (serialEl) serialEl.textContent = `SN-2026-0${m.id}-ECO • Model Series ${m.id * 100 + 42}`;
+
+  if (badgeEl) {
+    badgeEl.className = `status-badge ${m.status}`;
+    badgeEl.textContent = m.status === 'online' ? '● Online (Nominal)' : m.status === 'warning' ? '⚠️ Warning (142 Hz Harmonic)' : (m.status === 'danger' ? '🔴 Critical Thermal Runaway' : '⏸ Maintenance');
+  }
+
+  if (throttleSlider && throttleVal) {
+    throttleSlider.value = m.load;
+    throttleVal.textContent = `${m.load}%`;
+  }
+
+  updateOpenMachineInspector(m);
+
+  // Start FFT Spectrum Canvas animation
+  const canvas = document.getElementById('fft-canvas');
+  if (canvas) {
+    startFFTVisualizer(canvas, machineId);
+  }
+
+  modal.style.display = 'flex';
+}
+
+function updateOpenMachineInspector(m) {
+  const statorEl = document.getElementById('hz-stator-temp');
+  const bearingEl = document.getElementById('hz-bearing-temp');
+  const hydEl = document.getElementById('hz-hyd-temp');
+  const chillerEl = document.getElementById('hz-chiller-temp');
+  const rulCountdown = document.getElementById('rul-countdown');
+  const rulVelocity = document.getElementById('rul-velocity');
+  const rulHarmonic = document.getElementById('rul-harmonic');
+  const fftPeakLabel = document.getElementById('fft-peak-label');
+
+  const isHot = m.temp > 70;
+  const stator = +(m.temp * 1.02).toFixed(1);
+  const bearing = +(m.temp * (isHot ? 1.05 : 0.96)).toFixed(1);
+  const hyd = +(m.temp * 0.92).toFixed(1);
+  const chiller = isHot ? 32.4 : 26.5;
+
+  if (statorEl) statorEl.textContent = `${stator}°C`;
+  if (bearingEl) bearingEl.textContent = `${bearing}°C`;
+  if (hydEl) hydEl.textContent = `${hyd}°C`;
+  if (chillerEl) chillerEl.textContent = `${chiller}°C`;
+
+  if (m.id === 3 && m.temp > 75) {
+    if (rulCountdown) rulCountdown.textContent = '4.8 min';
+    if (rulVelocity) rulVelocity.textContent = '+2.4°C / min';
+    if (rulHarmonic) rulHarmonic.textContent = 'Broadband Bearing Noise';
+    if (fftPeakLabel) fftPeakLabel.textContent = 'Peak: 380 Hz (Thermal Friction)';
+  } else if (m.id === 2) {
+    if (rulCountdown) rulCountdown.textContent = '2.4 hours';
+    if (rulVelocity) rulVelocity.textContent = '+0.8°C / min';
+    if (rulHarmonic) rulHarmonic.textContent = '142 Hz (Cavitation Flutter)';
+    if (fftPeakLabel) fftPeakLabel.textContent = 'Peak: 142 Hz (Bearing Resonance)';
+  } else {
+    if (rulCountdown) rulCountdown.textContent = 'Nominal (>8,000h)';
+    if (rulVelocity) rulVelocity.textContent = '0.0°C / min (Stable)';
+    if (rulHarmonic) rulHarmonic.textContent = '60 Hz (Grid Baseline)';
+    if (fftPeakLabel) fftPeakLabel.textContent = 'Peak: 60 Hz (Synchronous AC)';
+  }
+}
+
+function closeMachineInspector() {
+  const modal = document.getElementById('machine-inspector-modal');
+  if (modal) modal.style.display = 'none';
+  state.activeInspectorMachineId = null;
+  if (state.fftAnimationId) {
+    cancelAnimationFrame(state.fftAnimationId);
+    state.fftAnimationId = null;
+  }
+}
+
+function startFFTVisualizer(canvas, machineId) {
+  if (state.fftAnimationId) {
+    cancelAnimationFrame(state.fftAnimationId);
+  }
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  let phase = 0;
+  const numBars = 42;
+
+  function renderFrame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const barWidth = canvas.width / numBars;
+
+    // Draw baseline grid lines
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(0, canvas.height * 0.3);
+    ctx.lineTo(canvas.width, canvas.height * 0.3);
+    ctx.stroke();
+
+    for (let i = 0; i < numBars; i++) {
+      const freq = (i / numBars) * 500; // 0 to 500 Hz
+      let amp = 0.15 + 0.08 * Math.sin(phase + i * 0.4);
+
+      // Distinct Harmonic Peak at 142 Hz (around bar 12) for Machine 2
+      if (machineId === 2 && Math.abs(freq - 142) < 25) {
+        amp = 0.85 + 0.1 * Math.sin(phase * 2.5);
+      }
+      // Critical friction noise for Machine 3 (around bars 26 to 36)
+      if (machineId === 3 && freq > 280 && freq < 440) {
+        amp = 0.72 + 0.22 * Math.sin(phase * 4 + i);
+      }
+
+      const barHeight = amp * (canvas.height * 0.85);
+      const x = i * barWidth;
+      const y = canvas.height - barHeight;
+
+      if (amp > 0.7) {
+        ctx.fillStyle = '#ef4444';
+      } else if (amp > 0.4) {
+        ctx.fillStyle = '#f59e0b';
+      } else {
+        ctx.fillStyle = '#00d4aa';
+      }
+
+      ctx.fillRect(x + 1, y, barWidth - 2, barHeight);
+    }
+
+    phase += 0.08;
+    if (state.activeInspectorMachineId) {
+      state.fftAnimationId = requestAnimationFrame(renderFrame);
+    }
+  }
+
+  renderFrame();
+}
+
+// ==================== 5. WHAT-IF SCENARIO SIMULATOR ====================
+function initSimulationChart() {
+  const ctx = document.getElementById('simulation-chart');
+  if (!ctx) return;
+
+  const sim = state.simulation;
+  const hours = ['Start', '+2h', '+4h', '+6h', '+8h'];
+  const hourlyRate = sim.projectedCarbon;
+  const projectedData = hours.map((h, i) => +(hourlyRate * (i * 2)).toFixed(1));
+  const budgetCapData = hours.map(() => 50.0);
+
+  state.charts.simulation = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: hours,
+      datasets: [
+        {
+          label: 'Projected Shift Carbon (kg CO₂)',
+          data: projectedData,
+          borderColor: '#00d4aa',
+          backgroundColor: 'rgba(0, 212, 170, 0.15)',
+          fill: true,
+          tension: 0.35,
+          borderWidth: 2
+        },
+        {
+          label: 'Daily Budget Limit (50 kg)',
+          data: budgetCapData,
+          borderColor: '#ef4444',
+          borderDash: [5, 5],
+          pointRadius: 0,
+          borderWidth: 2,
+          fill: false
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { color: '#94a3b8', font: { size: 11 } }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#64748b' }
+        },
+        y: {
+          min: 0,
+          max: 60,
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#64748b' }
+        }
+      }
+    }
+  });
+}
+
+function updateSimulationChart() {
+  if (!state.charts.simulation) return;
+  const sim = state.simulation;
+  const hourlyRate = sim.projectedCarbon;
+  const projectedData = ['Start', '+2h', '+4h', '+6h', '+8h'].map((h, i) => +(hourlyRate * (i * 2)).toFixed(1));
+
+  const chart = state.charts.simulation;
+  chart.data.datasets[0].data = projectedData;
+  const isBreached = projectedData[projectedData.length - 1] > 50.0;
+  chart.data.datasets[0].borderColor = isBreached ? '#ef4444' : '#00d4aa';
+  chart.data.datasets[0].backgroundColor = isBreached ? 'rgba(239, 68, 68, 0.2)' : 'rgba(0, 212, 170, 0.15)';
+  chart.options.scales.y.max = Math.max(60, Math.ceil(projectedData[projectedData.length - 1] * 1.15));
+  chart.update('none');
+}
+
+function initSimulationStudio() {
+  const loadSlider = document.getElementById('sim-load');
+  const renewSlider = document.getElementById('sim-renew');
+  const tempSlider = document.getElementById('sim-temp-offset');
+  const ecoPulseCheck = document.getElementById('sim-eco-pulse');
+  const precoolCheck = document.getElementById('sim-chiller-precool');
+
+  if (loadSlider) {
+    loadSlider.addEventListener('input', (e) => {
+      state.simulation.factoryLoad = parseInt(e.target.value, 10);
+      const valEl = document.getElementById('sim-load-val');
+      if (valEl) valEl.textContent = `${state.simulation.factoryLoad}%`;
+      recomputeSimulation();
+    });
+  }
+
+  if (renewSlider) {
+    renewSlider.addEventListener('input', (e) => {
+      state.simulation.renewableMix = parseInt(e.target.value, 10);
+      const valEl = document.getElementById('sim-renew-val');
+      if (valEl) valEl.textContent = `${state.simulation.renewableMix}%`;
+      recomputeSimulation();
+    });
+  }
+
+  if (tempSlider) {
+    tempSlider.addEventListener('input', (e) => {
+      state.simulation.tempOffset = parseInt(e.target.value, 10);
+      const valEl = document.getElementById('sim-temp-offset-val');
+      const sign = state.simulation.tempOffset > 0 ? '+' : '';
+      if (valEl) valEl.textContent = `${sign}${state.simulation.tempOffset}°C`;
+      recomputeSimulation();
+    });
+  }
+
+  if (ecoPulseCheck) {
+    ecoPulseCheck.addEventListener('change', (e) => {
+      state.simulation.ecoPulse = e.target.checked;
+      recomputeSimulation();
+    });
+  }
+
+  if (precoolCheck) {
+    precoolCheck.addEventListener('change', (e) => {
+      state.simulation.chillerPrecool = e.target.checked;
+      recomputeSimulation();
+    });
+  }
+
+  // Presets
+  const presets = [
+    { id: 'preset-benchmark', preset: 'benchmark' },
+    { id: 'preset-peak', preset: 'peak' },
+    { id: 'preset-night', preset: 'night' },
+    { id: 'preset-heatwave', preset: 'heatwave' }
+  ];
+
+  presets.forEach(({ id, preset }) => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      setSimulationPreset(preset);
+      playIndustrialTone('click');
+    });
+  });
+
+  // Apply button
+  const applyBtn = document.getElementById('btn-apply-simulation');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', applySimulationToLive);
+  }
+
+  // Reset button
+  const resetBtn = document.getElementById('btn-reset-simulation');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      setSimulationPreset('benchmark');
+      playIndustrialTone('click');
+    });
+  }
+
+  recomputeSimulation();
+}
+
+function setSimulationPreset(preset) {
+  document.querySelectorAll('.preset-pill').forEach(p => {
+    if (p.dataset.preset === preset) p.classList.add('active');
+    else p.classList.remove('active');
+  });
+
+  const loadSlider = document.getElementById('sim-load');
+  const renewSlider = document.getElementById('sim-renew');
+  const tempSlider = document.getElementById('sim-temp-offset');
+  const ecoPulseCheck = document.getElementById('sim-eco-pulse');
+  const precoolCheck = document.getElementById('sim-chiller-precool');
+
+  if (preset === 'benchmark') {
+    state.simulation.factoryLoad = 85;
+    state.simulation.renewableMix = 100;
+    state.simulation.tempOffset = 0;
+    state.simulation.ecoPulse = true;
+    state.simulation.chillerPrecool = false;
+  } else if (preset === 'peak') {
+    state.simulation.factoryLoad = 145;
+    state.simulation.renewableMix = 15;
+    state.simulation.tempOffset = 4;
+    state.simulation.ecoPulse = false;
+    state.simulation.chillerPrecool = false;
+  } else if (preset === 'night') {
+    state.simulation.factoryLoad = 60;
+    state.simulation.renewableMix = 90;
+    state.simulation.tempOffset = -3;
+    state.simulation.ecoPulse = true;
+    state.simulation.chillerPrecool = false;
+  } else if (preset === 'heatwave') {
+    state.simulation.factoryLoad = 110;
+    state.simulation.renewableMix = 45;
+    state.simulation.tempOffset = 12;
+    state.simulation.ecoPulse = true;
+    state.simulation.chillerPrecool = true;
+  }
+
+  if (loadSlider) loadSlider.value = state.simulation.factoryLoad;
+  if (renewSlider) renewSlider.value = state.simulation.renewableMix;
+  if (tempSlider) tempSlider.value = state.simulation.tempOffset;
+  if (ecoPulseCheck) ecoPulseCheck.checked = state.simulation.ecoPulse;
+  if (precoolCheck) precoolCheck.checked = state.simulation.chillerPrecool;
+
+  const loadVal = document.getElementById('sim-load-val');
+  const renewVal = document.getElementById('sim-renew-val');
+  const tempVal = document.getElementById('sim-temp-offset-val');
+  if (loadVal) loadVal.textContent = `${state.simulation.factoryLoad}%`;
+  if (renewVal) renewVal.textContent = `${state.simulation.renewableMix}%`;
+  if (tempVal) {
+    const s = state.simulation.tempOffset > 0 ? '+' : '';
+    tempVal.textContent = `${s}${state.simulation.tempOffset}°C`;
+  }
+
+  recomputeSimulation();
+}
+
+function recomputeSimulation() {
+  const sim = state.simulation;
+  const loadRatio = sim.factoryLoad / 100.0;
+  const renewRatio = sim.renewableMix / 100.0;
+  const tempOffset = sim.tempOffset;
+
+  const chillerDraw = (tempOffset > 5 || sim.chillerPrecool) ? 1.8 : 0.8;
+  const pulseFactor = sim.ecoPulse ? 0.88 : 1.0;
+  const power = +((14.0 * Math.pow(loadRatio, 1.3) + chillerDraw) * pulseFactor).toFixed(1);
+
+  // Carbon emitted per hour
+  const effectiveEmissionFactor = (1.0 - renewRatio) * 0.82;
+  const carbonRate = +(power * effectiveEmissionFactor).toFixed(1);
+  const shiftCarbon = +(carbonRate * 4.0).toFixed(1); // 8-hour shift extrapolation
+
+  // Equipment stress index
+  let stress = Math.min(100, Math.max(10, Math.round(35 + (loadRatio - 1.0) * 80 + tempOffset * 2.5)));
+  if (sim.ecoPulse) stress = Math.max(10, stress - 12);
+  if (sim.chillerPrecool) stress = Math.max(10, stress - 15);
+
+  // Cost and avoided tax
+  const shiftCost = +(power * 8 * 0.18).toFixed(2);
+  const taxAvoided = +((renewRatio * power * 8 * 0.82 / 1000.0) * 85.0).toFixed(2);
+
+  let esgRating = 'A+';
+  let esgSub = 'Zero-Emission Benchmark (Net-Zero Certified)';
+  if (shiftCarbon > 50) {
+    esgRating = 'F';
+    esgSub = 'Carbon Budget Ceiling Breached — Penalty Risk';
+  } else if (shiftCarbon > 38) {
+    esgRating = 'B';
+    esgSub = 'Elevated Grid Carbon Reliance';
+  } else if (shiftCarbon > 24) {
+    esgRating = 'A';
+    esgSub = 'Fully Compliant with Industrial ESG Standards';
+  }
+
+  sim.projectedPower = power;
+  sim.projectedCarbon = carbonRate;
+  sim.shiftCarbon = shiftCarbon;
+  sim.stressIndex = stress;
+  sim.esgRating = esgRating;
+  sim.shiftCost = shiftCost;
+  sim.taxSaved = taxAvoided;
+
+  // Update UI Elements
+  const carbonRateEl = document.getElementById('sim-carbon-rate');
+  const shiftCarbonEl = document.getElementById('sim-shift-carbon');
+  const carbonBadgeEl = document.getElementById('sim-carbon-badge');
+  const powerRateEl = document.getElementById('sim-power-rate');
+  const shiftCostEl = document.getElementById('sim-shift-cost');
+  const taxSavedEl = document.getElementById('sim-tax-saved');
+  const stressPercentEl = document.getElementById('sim-stress-percent');
+  const stressBarEl = document.getElementById('sim-stress-bar');
+  const stressBadgeEl = document.getElementById('sim-stress-badge');
+  const esgRatingEl = document.getElementById('sim-esg-rating');
+  const esgSubEl = document.getElementById('sim-esg-sub');
+
+  if (carbonRateEl) carbonRateEl.textContent = carbonRate.toFixed(1);
+  if (shiftCarbonEl) shiftCarbonEl.textContent = `${shiftCarbon.toFixed(1)} kg`;
+  if (carbonBadgeEl) {
+    if (shiftCarbon > 50) {
+      carbonBadgeEl.textContent = 'Ceiling Breached';
+      carbonBadgeEl.className = 'sim-pill danger';
+    } else {
+      carbonBadgeEl.textContent = 'Inside Budget';
+      carbonBadgeEl.className = 'sim-pill green';
+    }
+  }
+
+  if (powerRateEl) powerRateEl.textContent = power.toFixed(1);
+  if (shiftCostEl) shiftCostEl.textContent = `$${shiftCost.toFixed(2)}`;
+  if (taxSavedEl) taxSavedEl.textContent = `$${taxAvoided.toFixed(2)}`;
+
+  if (stressPercentEl) stressPercentEl.textContent = `${stress}%`;
+  if (stressBarEl) stressBarEl.style.width = `${stress}%`;
+  if (stressBadgeEl) {
+    stressBadgeEl.textContent = stress > 75 ? 'Critical Strain' : (stress > 50 ? 'Moderate' : 'Nominal');
+    stressBadgeEl.className = `sim-pill ${stress > 75 ? 'danger' : (stress > 50 ? 'cyan' : 'green')}`;
+  }
+
+  if (esgRatingEl) {
+    esgRatingEl.textContent = esgRating;
+    esgRatingEl.className = `text-${esgRating === 'F' ? 'danger' : (esgRating === 'B' ? 'warning' : 'teal')}`;
+  }
+  if (esgSubEl) esgSubEl.textContent = esgSub;
+
+  updateSimulationChart();
+}
+
+function applySimulationToLive() {
+  const sim = state.simulation;
+  state.telemetry.power = sim.projectedPower;
+  state.telemetry.carbon = +(sim.projectedPower * (1.0 - sim.renewableMix / 100.0) * 0.82).toFixed(1);
+  state.telemetry.remaining = +(state.telemetry.budget - state.telemetry.carbon).toFixed(1);
+  state.telemetry.temp = +(32.0 + sim.tempOffset + (sim.factoryLoad - 100) * 0.15).toFixed(1);
+
+  // Rebalance machine states
+  state.machines.forEach(m => {
+    if (m.id === 5) return;
+    m.load = Math.min(100, Math.max(20, Math.round(sim.factoryLoad * (m.id === 4 ? 0.75 : 0.95))));
+    if (sim.stressIndex > 75 && (m.id === 2 || m.id === 3)) {
+      m.status = m.id === 3 ? 'danger' : 'warning';
+      m.temp = m.id === 3 ? 88 : 77;
+    } else if (sim.stressIndex < 45) {
+      m.status = 'online';
+      m.temp = m.id === 3 ? 48 : 42;
+      m.vibr = 'Normal';
+    }
+  });
+
+  updateTelemetryDisplay();
+  pushChartData();
+  updateDigitalTwinDisplay();
+  updateSituationalIntelligence();
+
+  playIndustrialTone('success');
+  showToast(`Simulated Scenario Synced: Factory Load ${sim.factoryLoad}%, ${sim.renewableMix}% Solar Mix`, 'success');
+  speakAlert('Simulated scenario applied to physical shop floor');
+
+  // Attempt backend sync
+  fetch('/api/simulation/apply', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      factory_load: sim.factoryLoad,
+      renewable_mix: sim.renewableMix,
+      ambient_temp_offset: sim.tempOffset,
+      eco_pulse: sim.ecoPulse,
+      chiller_pre_cool: sim.chillerPrecool
+    })
+  }).catch(() => {});
+}
+
+// ==================== 6. MAINTENANCE WORK ORDER & DISPATCH SYSTEM ====================
+function initWorkOrders() {
+  renderWorkOrdersTable();
+
+  const createBtn = document.getElementById('btn-create-work-order');
+  if (createBtn) {
+    createBtn.addEventListener('click', () => {
+      openWorkOrderModal(3);
+      playIndustrialTone('click');
+    });
+  }
+
+  const closeBtn = document.getElementById('close-wo-btn');
+  const modal = document.getElementById('work-order-modal');
+  if (closeBtn) closeBtn.addEventListener('click', closeWorkOrderModal);
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeWorkOrderModal();
+    });
+  }
+
+  const submitBtn = document.getElementById('btn-submit-work-order');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', submitWorkOrder);
+  }
+
+  const printBtn = document.getElementById('btn-print-work-order');
+  if (printBtn) {
+    printBtn.addEventListener('click', () => {
+      window.print();
+    });
+  }
+}
+
+function renderWorkOrdersTable() {
+  const tbody = document.getElementById('work-orders-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = state.workOrders.map(wo => `
+    <tr>
+      <td><strong>${wo.id}</strong></td>
+      <td>${wo.machineName} <br/><small class="text-muted">${wo.bay}</small></td>
+      <td><span class="badge-status-wo ${wo.priority.toLowerCase()}">${wo.priority}</span></td>
+      <td>${wo.issue}</td>
+      <td>${wo.technician}</td>
+      <td><span class="badge-tag green">${wo.status}</span></td>
+      <td>
+        <button class="alert-resolve-btn" onclick="window.resolveWorkOrder && window.resolveWorkOrder('${wo.id}')">Complete</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Window global helper for completing work order
+window.resolveWorkOrder = function(id) {
+  const order = state.workOrders.find(o => o.id === id);
+  if (order) {
+    order.status = 'Completed';
+    renderWorkOrdersTable();
+    showToast(`Work Order ${id} marked completed by lead technician`, 'success');
+    playIndustrialTone('success');
+  }
+};
+
+function openWorkOrderModal(prefilledMachineId = 3) {
+  const modal = document.getElementById('work-order-modal');
+  if (!modal) return;
+
+  const selectMachine = document.getElementById('wo-select-machine');
+  if (selectMachine && prefilledMachineId) {
+    selectMachine.value = String(prefilledMachineId);
+  }
+
+  const newId = `WO-2026-0${Math.floor(890 + Math.random() * 100)}`;
+  const idEl = document.getElementById('wo-modal-id');
+  const barcodeText = document.getElementById('wo-barcode-text');
+  if (idEl) idEl.textContent = newId;
+  if (barcodeText) barcodeText.textContent = `${newId}-LOTO`;
+
+  modal.style.display = 'flex';
+}
+
+function closeWorkOrderModal() {
+  const modal = document.getElementById('work-order-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function submitWorkOrder() {
+  const selectMachine = document.getElementById('wo-select-machine');
+  const selectPriority = document.getElementById('wo-select-priority');
+  const issueInput = document.getElementById('wo-issue-input');
+  const partsInput = document.getElementById('wo-parts-input');
+  const techInput = document.getElementById('wo-tech-input');
+  const idEl = document.getElementById('wo-modal-id');
+
+  const machineId = parseInt(selectMachine ? selectMachine.value : '3', 10);
+  const m = state.machines.find(item => item.id === machineId) || state.machines[2];
+  const ticketId = idEl ? idEl.textContent : `WO-2026-0${Math.floor(890 + Math.random() * 100)}`;
+
+  const newOrder = {
+    id: ticketId,
+    machineId: m.id,
+    machineName: `${m.name} (${m.type})`,
+    bay: `Bay ${m.id} - Factory Floor`,
+    priority: selectPriority ? selectPriority.value : 'Critical',
+    status: 'Dispatched',
+    issue: issueInput ? issueInput.value : 'Spindle bearing vibration and thermal runaway.',
+    parts: partsInput ? partsInput.value.split(',').map(s => s.trim()) : ['Bearing SKF', 'Coolant Filter'],
+    technician: techInput ? techInput.value : 'Marcus Vance (Shift Lead)',
+    lotoRequired: true,
+    createdAt: 'Just now'
+  };
+
+  state.workOrders.unshift(newOrder);
+  renderWorkOrdersTable();
+  closeWorkOrderModal();
+
+  playIndustrialTone('success');
+  showToast(`Work Order ${ticketId} officially dispatched to ${newOrder.technician}`, 'success');
+  speakAlert(`Work order ${ticketId} dispatched to ${newOrder.technician}`);
+
+  // Sync with backend if available
+  fetch('/api/work-orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      machine_id: newOrder.machineId,
+      machine_name: newOrder.machineName,
+      bay: newOrder.bay,
+      priority: newOrder.priority,
+      issue: newOrder.issue,
+      parts: newOrder.parts,
+      technician: newOrder.technician,
+      loto_required: newOrder.lotoRequired
+    })
+  }).catch(() => {});
+}
+
+// ===================================================================
+// 7. FACTORY ADMINISTRATION & FLEET SCALING (COMPANY JOURNEY)
+// ===================================================================
+
+function initAdminFleet() {
+  const openModalBtn = document.getElementById('btn-open-add-machine-modal');
+  const openModalTopBtn = document.getElementById('btn-admin-add-machine-top');
+  const closeModalBtn = document.getElementById('add-machine-close-btn');
+  const cancelModalBtn = document.getElementById('btn-cancel-add-machine');
+  const modal = document.getElementById('add-machine-modal');
+  const addForm = document.getElementById('add-machine-form');
+  const loadSlider = document.getElementById('new-machine-load');
+  const loadDisplay = document.getElementById('load-display-val');
+
+  const scalePhase3Btn = document.getElementById('btn-quick-scale-phase3');
+  const stepPhase3Btn = document.getElementById('step-btn-deploy-phase3');
+  const stepPhase4Btn = document.getElementById('step-btn-deploy-phase4');
+  const refreshFleetBtn = document.getElementById('btn-admin-refresh-fleet');
+
+  // Open Add Machine Modal
+  const openModal = () => {
+    if (!modal) return;
+    modal.style.display = 'flex';
+    const nameInput = document.getElementById('new-machine-name');
+    if (nameInput) {
+      const nextId = Math.max(...state.machines.map(m => m.id), 0) + 1;
+      nameInput.value = `Machine ${nextId}`;
+      nameInput.focus();
+    }
+  };
+
+  const closeModal = () => {
+    if (modal) modal.style.display = 'none';
+  };
+
+  if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+  if (openModalTopBtn) openModalTopBtn.addEventListener('click', openModal);
+  if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+  if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  // Load slider live label
+  if (loadSlider && loadDisplay) {
+    loadSlider.addEventListener('input', (e) => {
+      loadDisplay.textContent = `${e.target.value}%`;
+    });
+  }
+
+  // Submit Add Machine Form
+  if (addForm) {
+    addForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('new-machine-name')?.value.trim() || 'New Machine';
+      const type = document.getElementById('new-machine-type')?.value || 'Precision Laser Cutter';
+      const bay = document.getElementById('new-machine-bay')?.value || 'Bay 6 - Precision Cell';
+      const journeyPhase = document.getElementById('new-machine-journey')?.value || 'Phase 3: Commercial Growth';
+      const load = parseInt(document.getElementById('new-machine-load')?.value || '65', 10);
+      const temp = parseFloat(document.getElementById('new-machine-temp')?.value || '38.5');
+      const power = parseFloat(document.getElementById('new-machine-power')?.value || '3.8');
+      const vibr = document.getElementById('new-machine-vibr')?.value || 'Normal';
+
+      const nextId = Math.max(...state.machines.map(m => m.id), 0) + 1;
+
+      const newMachine = {
+        id: nextId,
+        name,
+        type,
+        bay,
+        journeyPhase,
+        load,
+        temp,
+        power,
+        vibr,
+        status: 'online'
+      };
+
+      state.machines.push(newMachine);
+      closeModal();
+
+      syncFloorMapWithMachines();
+      syncMachineCardsWithMachines();
+      renderAdminMachineTable();
+      updateAdminKpiMetrics();
+      updateDigitalTwinDisplay();
+
+      playIndustrialTone('success');
+      showToast(`Machine ${name} (${type}) successfully deployed to ${bay}!`, 'success');
+      speakAlert(`New machine ${name} deployed to factory floor`);
+
+      // Attempt backend sync
+      fetch('/api/machines', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newMachine.name,
+          type: newMachine.type,
+          bay: newMachine.bay,
+          journey_phase: newMachine.journeyPhase,
+          load: newMachine.load,
+          temp: newMachine.temp,
+          power: newMachine.power,
+          vibr: newMachine.vibr,
+          status: newMachine.status
+        })
+      }).catch(() => {});
+    });
+  }
+
+  // Milestone quick scaling buttons
+  if (scalePhase3Btn) {
+    scalePhase3Btn.addEventListener('click', () => {
+      deployCompanyJourneyMilestone(3);
+    });
+  }
+  if (stepPhase3Btn) {
+    stepPhase3Btn.addEventListener('click', () => {
+      deployCompanyJourneyMilestone(3);
+    });
+  }
+  if (stepPhase4Btn) {
+    stepPhase4Btn.addEventListener('click', () => {
+      deployCompanyJourneyMilestone(4);
+    });
+  }
+  if (refreshFleetBtn) {
+    refreshFleetBtn.addEventListener('click', () => {
+      showToast('Refreshing fleet inventory from telemetry bus...', 'info');
+      fetchLiveData();
+      renderAdminMachineTable();
+      updateAdminKpiMetrics();
+    });
+  }
+
+  // Initial render
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+}
+
+function renderAdminMachineTable() {
+  const tbody = document.getElementById('admin-machines-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = state.machines.map(m => {
+    const isOnline = m.status === 'online';
+    const isWarning = m.status === 'warning';
+    const isDanger = m.status === 'danger';
+    const statusLabel = isOnline ? '● Online' : (isWarning ? '⚠ Warning' : (isDanger ? '🔴 Critical' : '⏸ Maintenance'));
+    const statusClass = isOnline ? 'online' : (isWarning ? 'warning' : (isDanger ? 'danger' : 'offline'));
+
+    return `
+      <tr class="admin-machine-row" data-id="${m.id}">
+        <td>
+          <div class="table-id-cell">
+            <span class="machine-id-badge">#M-${m.id}</span>
+          </div>
+        </td>
+        <td>
+          <div class="table-equip-cell">
+            <strong>${m.name}</strong>
+            <span class="sub-type">${m.type}</span>
+          </div>
+        </td>
+        <td>
+          <span class="bay-tag">${m.bay || `Bay ${m.id} - Factory Floor`}</span>
+        </td>
+        <td>
+          <span class="journey-phase-tag">${m.journeyPhase || (m.id <= 2 ? 'Phase 1: Seed Prototype' : (m.id <= 5 ? 'Phase 2: Pilot Plant' : (m.id <= 8 ? 'Phase 3: Commercial Growth' : 'Phase 4: Megafactory')))}</span>
+        </td>
+        <td>
+          <div class="admin-load-cell">
+            <div class="load-bar-wrap">
+              <div class="load-bar-fill" style="width: ${m.load}%; background: ${m.load > 90 ? 'var(--accent-danger)' : (m.load > 75 ? 'var(--accent-amber)' : 'var(--accent-primary)')}"></div>
+            </div>
+            <span class="load-text">${m.load}%</span>
+          </div>
+        </td>
+        <td>
+          <span class="temp-text ${m.temp > 75 ? 'danger-text' : (m.temp > 55 ? 'warning-text' : '')}">${m.temp > 0 ? `${m.temp}°C` : '--°C'}</span>
+        </td>
+        <td>
+          <span class="vibr-badge ${m.vibr === 'Critical' ? 'danger' : (m.vibr === 'High' ? 'warning' : 'normal')}">${m.vibr || 'Normal'}</span>
+        </td>
+        <td>
+          <span class="machine-status-pill ${statusClass}">${statusLabel}</span>
+        </td>
+        <td>
+          <div class="admin-row-actions">
+            <button class="btn-table-action" title="${isOnline ? 'Switch to Standby/Maintenance' : 'Bring Online'}" onclick="window.toggleAdminMachineStatus(${m.id})">
+              ${isOnline ? '⏸' : '⚡'}
+            </button>
+            <button class="btn-table-action" title="Inspect Diagnostics" onclick="window.openInspectorForMachine(${m.id})">
+              🔍
+            </button>
+            <button class="btn-table-action delete-action" title="Decommission Machine" onclick="window.deleteAdminMachine(${m.id})">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function updateAdminKpiMetrics() {
+  const totalEl = document.getElementById('admin-total-machines');
+  const subEl = document.getElementById('admin-fleet-status-sub');
+  const powerEl = document.getElementById('admin-total-power');
+  const workforceEl = document.getElementById('admin-total-workforce');
+  const carbonShareEl = document.getElementById('admin-carbon-share');
+  const journeyPill = document.getElementById('journey-phase-indicator');
+
+  const count = state.machines.length;
+  const onlineCount = state.machines.filter(m => m.status === 'online').length;
+  const totalKw = state.machines.reduce((sum, m) => sum + (m.power || 3.5), 0);
+  const totalWorkers = 12 + Math.max(0, (count - 5) * 2) + (state.manpower?.auxiliaryDeployed || 0);
+  const carbonPerUnit = (state.telemetry.budget / Math.max(1, count)).toFixed(1);
+
+  if (totalEl) totalEl.textContent = `${count} Machines`;
+  if (subEl) subEl.textContent = `${onlineCount}/${count} Online & Telemetry Synced`;
+  if (powerEl) powerEl.textContent = `${totalKw.toFixed(1)} kW Peak`;
+  if (workforceEl) workforceEl.textContent = `${totalWorkers} Operators`;
+  if (carbonShareEl) carbonShareEl.textContent = `${carbonPerUnit} kg / unit`;
+
+  // Update Journey Phase indicator & Timeline Stepper
+  let currentPhase = 2;
+  let phaseName = 'Phase 2: Pilot Plant';
+  if (count >= 12) {
+    currentPhase = 4;
+    phaseName = 'Phase 4: Megafactory Zero-Carbon';
+  } else if (count >= 8) {
+    currentPhase = 3;
+    phaseName = 'Phase 3: Commercial Growth';
+  }
+  if (!state.companyJourney) state.companyJourney = {};
+  state.companyJourney.currentPhase = currentPhase;
+  state.companyJourney.phaseName = phaseName;
+
+  if (journeyPill) journeyPill.textContent = `Active ${phaseName}`;
+
+  // Update timeline markers
+  const step2 = document.getElementById('journey-step-2');
+  const step3 = document.getElementById('journey-step-3');
+  const step4 = document.getElementById('journey-step-4');
+
+  if (step2) {
+    if (currentPhase >= 3) {
+      step2.className = 'journey-step completed';
+      const m = step2.querySelector('.step-marker');
+      if (m) m.textContent = '✓';
+    } else {
+      step2.className = 'journey-step active';
+      const m = step2.querySelector('.step-marker');
+      if (m) m.textContent = '2';
+    }
+  }
+
+  if (step3) {
+    if (currentPhase >= 4) {
+      step3.className = 'journey-step completed';
+      const m = step3.querySelector('.step-marker');
+      if (m) m.textContent = '✓';
+    } else if (currentPhase === 3) {
+      step3.className = 'journey-step active';
+      const m = step3.querySelector('.step-marker');
+      if (m) m.textContent = '3';
+    } else {
+      step3.className = 'journey-step upcoming';
+      const m = step3.querySelector('.step-marker');
+      if (m) m.textContent = '3';
+    }
+  }
+
+  if (step4) {
+    if (currentPhase === 4) {
+      step4.className = 'journey-step active';
+      const m = step4.querySelector('.step-marker');
+      if (m) m.textContent = '4';
+    } else {
+      step4.className = 'journey-step locked';
+      const m = step4.querySelector('.step-marker');
+      if (m) m.textContent = '4';
+    }
+  }
+}
+
+function syncFloorMapWithMachines() {
+  const stage = document.getElementById('floor-map-stage');
+  if (!stage) return;
+
+  const coordinates = {
+    1: { left: '14%', top: '40%' },
+    2: { left: '42%', top: '22%' },
+    3: { left: '54%', top: '56%' },
+    4: { left: '76%', top: '28%' },
+    5: { left: '84%', top: '62%' },
+    6: { left: '26%', top: '68%' },
+    7: { left: '32%', top: '22%' },
+    8: { left: '66%', top: '72%' },
+    9: { left: '18%', top: '20%' },
+    10: { left: '48%', top: '78%' },
+    11: { left: '68%', top: '20%' },
+    12: { left: '88%', top: '38%' }
+  };
+
+  state.machines.forEach(m => {
+    let pod = document.getElementById(`map-pod-${m.id}`);
+    if (!pod) {
+      pod = document.createElement('div');
+      pod.id = `map-pod-${m.id}`;
+      pod.dataset.machine = m.id;
+      const coords = coordinates[m.id] || { left: `${15 + ((m.id * 17) % 75)}%`, top: `${25 + ((m.id * 19) % 60)}%` };
+      pod.style.left = coords.left;
+      pod.style.top = coords.top;
+      stage.appendChild(pod);
+
+      pod.addEventListener('click', () => {
+        openMachineInspector(m.id);
+      });
+    }
+
+    const statusBadgeText = m.status === 'online' ? '● Online' : 
+      (m.status === 'warning' ? '⚠️ High Load' : (m.status === 'danger' ? '🔴 Critical' : '⏸ Maintenance'));
+
+    pod.className = `map-machine-pod ${m.status} ${m.status === 'danger' ? 'pulse-danger' : ''}`;
+    pod.innerHTML = `
+      <div class="pod-halo ${m.status}-halo"></div>
+      <div class="pod-card">
+        <div class="pod-badge-status ${m.status}-badge">${statusBadgeText}</div>
+        <div class="pod-title">${m.name}</div>
+        <div class="pod-type">${m.type}</div>
+        <div class="pod-metrics">
+          <span><strong id="map-m${m.id}-temp">${m.temp > 0 ? `${m.temp}°C` : '--°C'}</strong> | <span id="map-m${m.id}-load">${m.load}%</span> load</span>
+        </div>
+        <div class="pod-action-hint">🔍 Click to Inspect</div>
+      </div>
+    `;
+  });
+
+  const existingPodIds = new Set(state.machines.map(m => `map-pod-${m.id}`));
+  stage.querySelectorAll('.map-machine-pod').forEach(pod => {
+    if (!existingPodIds.has(pod.id)) {
+      pod.remove();
+    }
+  });
+}
+
+function syncMachineCardsWithMachines() {
+  const container = document.getElementById('factory-floor');
+  if (!container) return;
+
+  state.machines.forEach(m => {
+    let card = document.getElementById(`machine-${m.id}`);
+    if (!card) {
+      card = document.createElement('div');
+      card.className = 'factory-machine';
+      card.id = `machine-${m.id}`;
+      card.dataset.machine = m.id;
+      container.appendChild(card);
+    }
+
+    const statusText = m.status === 'online' ? '● Online' : (m.status === 'warning' ? '⚠ Warning' : (m.status === 'danger' ? '🔴 Critical' : '⏸ Maintenance'));
+    const isWarn = m.status === 'warning';
+    const isDang = m.status === 'danger';
+
+    card.innerHTML = `
+      <div class="machine-visual">
+        <div class="machine-body ${isWarn ? 'warning-glow' : ''} ${isDang ? 'danger-glow' : ''}">
+          <div class="machine-gear ${isWarn ? 'spin-fast' : ''} ${isDang ? 'spin-erratic' : ''}"></div>
+        </div>
+        <div class="machine-status-indicator ${m.status}"></div>
+      </div>
+      <div class="machine-info">
+        <h4>${m.name}</h4>
+        <span class="machine-type">${m.type}</span>
+        <div class="machine-stats">
+          <div class="ms"><span class="ms-label">Temp</span><span class="ms-val ${isWarn ? 'warning-text' : (isDang ? 'danger-text' : '')}" id="m${m.id}-temp">${m.temp > 0 ? `${m.temp}°C` : '--°C'}</span></div>
+          <div class="ms"><span class="ms-label">Load</span><span class="ms-val ${isWarn ? 'warning-text' : (isDang ? 'danger-text' : '')}" id="m${m.id}-load">${m.load}%</span></div>
+          <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val ${isWarn ? 'warning-text' : (isDang ? 'danger-text' : '')}" id="m${m.id}-vibr">${m.vibr || 'Normal'}</span></div>
+        </div>
+        <div class="machine-card-footer">
+          <span class="machine-status-text ${m.status}">${statusText}</span>
+          <button class="btn-inspect-machine" onclick="window.openInspectorForMachine(${m.id})">🔍 Diagnostics</button>
+        </div>
+      </div>
+    `;
+  });
+
+  const existingIds = new Set(state.machines.map(m => `machine-${m.id}`));
+  container.querySelectorAll('.factory-machine').forEach(card => {
+    if (!existingIds.has(card.id)) {
+      card.remove();
+    }
+  });
+}
+
+// Global functions exposed to window for inline onclicks
+window.openInspectorForMachine = function(id) {
+  openMachineInspector(id);
+};
+
+window.toggleAdminMachineStatus = function(id) {
+  const m = state.machines.find(item => item.id === id);
+  if (!m) return;
+
+  if (m.status === 'online') {
+    m.status = 'offline';
+    m.load = 0;
+    m.temp = 0;
+    showToast(`${m.name} placed into Standby / Overhaul mode`, 'warning');
+  } else {
+    m.status = 'online';
+    m.load = 65;
+    m.temp = 42;
+    showToast(`${m.name} brought back online into production!`, 'success');
+  }
+
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+  updateDigitalTwinDisplay();
+  playIndustrialTone('click');
+
+  fetch(`/api/machines/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: m.status, load: m.load, temp: m.temp })
+  }).catch(() => {});
+};
+
+window.deleteAdminMachine = function(id) {
+  const m = state.machines.find(item => item.id === id);
+  if (!m) return;
+
+  if (!confirm(`Are you sure you want to decommission and remove ${m.name} (${m.type}) from the factory floor?`)) {
+    return;
+  }
+
+  state.machines = state.machines.filter(item => item.id !== id);
+
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+  updateDigitalTwinDisplay();
+
+  playIndustrialTone('alert');
+  showToast(`${m.name} (${m.type}) decommissioned from factory floor.`, 'info');
+  speakAlert(`Machine ${id} decommissioned.`);
+
+  fetch(`/api/machines/${id}`, {
+    method: 'DELETE'
+  }).catch(() => {});
+};
+
+window.deployCompanyJourneyMilestone = function(phase) {
+  showLoading(true);
+
+  setTimeout(() => {
+    showLoading(false);
+
+    if (phase === 3) {
+      const phase3Presets = [
+        { name: 'Machine 6', type: 'Precision Laser Cutter', bay: 'Bay 6 - Precision Cell', temp: 39.0, load: 65, vibr: 'Normal', power: 4.2, status: 'online', journeyPhase: 'Phase 3: Commercial Growth' },
+        { name: 'Machine 7', type: 'Clean Heat Pump', bay: 'Bay 7 - HVAC & Recovery', temp: 31.5, load: 50, vibr: 'Low', power: 2.8, status: 'online', journeyPhase: 'Phase 3: Commercial Growth' },
+        { name: 'Machine 8', type: 'Eco Extruder Unit', bay: 'Bay 8 - Polymer Forming', temp: 44.0, load: 68, vibr: 'Normal', power: 3.9, status: 'online', journeyPhase: 'Phase 3: Commercial Growth' }
+      ];
+
+      phase3Presets.forEach(preset => {
+        if (!state.machines.some(m => m.type === preset.type)) {
+          const nextId = Math.max(...state.machines.map(m => m.id), 0) + 1;
+          preset.id = nextId;
+          state.machines.push(preset);
+        }
+      });
+
+      playIndustrialTone('success');
+      showToast('🚀 Company Milestone Achieved: Phase 3 Commercial Fleet Deployed (+3 Machines)!', 'success');
+      speakAlert('Phase 3 Commercial scaling milestone deployed. 3 new production units online.');
+
+    } else if (phase === 4) {
+      const phase4Presets = [
+        { name: 'Machine 9', type: 'Additive 3D Metal Printer', bay: 'Bay 9 - Additive Cell', temp: 34.0, load: 58, vibr: 'Normal', power: 3.2, status: 'online', journeyPhase: 'Phase 4: Megafactory' },
+        { name: 'Machine 10', type: 'Autonomous AMR Fleet Hub', bay: 'Bay 10 - Logistics Grid', temp: 28.0, load: 45, vibr: 'Low', power: 1.9, status: 'online', journeyPhase: 'Phase 4: Megafactory' },
+        { name: 'Machine 11', type: 'Clean Induction Furnace', bay: 'Bay 11 - Metallurgy', temp: 48.0, load: 62, vibr: 'Normal', power: 6.4, status: 'online', journeyPhase: 'Phase 4: Megafactory' },
+        { name: 'Machine 12', type: 'Automated Vision QA Gantry', bay: 'Bay 12 - Quality Inspection', temp: 26.5, load: 40, vibr: 'Low', power: 1.4, status: 'online', journeyPhase: 'Phase 4: Megafactory' }
+      ];
+
+      phase4Presets.forEach(preset => {
+        if (!state.machines.some(m => m.type === preset.type)) {
+          const nextId = Math.max(...state.machines.map(m => m.id), 0) + 1;
+          preset.id = nextId;
+          state.machines.push(preset);
+        }
+      });
+
+      playIndustrialTone('success');
+      showToast('⚡ Enterprise Megafactory Milestone Achieved: Zero-Carbon Complex Activated (+4 Machines)!', 'success');
+      speakAlert('Phase 4 Megafactory scaling milestone unlocked. 12 industrial twin units synchronized.');
+    }
+
+    renderAdminMachineTable();
+    updateAdminKpiMetrics();
+    syncFloorMapWithMachines();
+    syncMachineCardsWithMachines();
+    updateDigitalTwinDisplay();
+
+    // Sync with backend
+    fetch('/api/admin/journey/scale', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phase })
+    }).catch(() => {});
+  }, 600);
+};
+

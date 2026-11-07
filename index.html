@@ -132,6 +132,11 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
             <span>Predictions</span>
           </a>
+          <a href="#" class="nav-item" data-page="simulation" id="nav-simulation">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>What-If Studio</span>
+            <span class="nav-badge new-badge">AI</span>
+          </a>
           <a href="#" class="nav-item" data-page="analytics" id="nav-analytics">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg>
             <span>Analytics</span>
@@ -144,6 +149,11 @@
           <a href="#" class="nav-item" data-page="reports" id="nav-reports">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
             <span>Reports</span>
+          </a>
+          <a href="#" class="nav-item" data-page="admin" id="nav-admin">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Fleet Admin</span>
+            <span class="nav-badge admin-badge">Scale</span>
           </a>
         </nav>
 
@@ -181,6 +191,14 @@
               <span>Factory Online</span>
             </div>
             <div class="topbar-actions">
+              <button class="topbar-btn global-estop-btn" id="btn-global-estop" title="Plant-Wide Emergency Safe Stop (E-STOP)">
+                <span class="estop-icon">⛔</span>
+                <span class="estop-text">E-STOP</span>
+              </button>
+              <button class="topbar-btn audio-btn" id="audio-alert-btn" title="Audio Alarm Alerts (Muted)">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="audio-icon"><path d="M11 5L6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+                <span class="audio-status-pill" id="audio-status-pill">MUTED</span>
+              </button>
               <button class="topbar-btn" id="notification-btn" title="Notifications">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                 <span class="notification-badge" id="notif-badge">5</span>
@@ -303,6 +321,100 @@
             </div>
           </section>
 
+          <!-- Renewable Microgrid & Solar/BESS Section -->
+          <section class="microgrid-section">
+            <div class="section-card microgrid-card">
+              <div class="section-header">
+                <div class="header-title-group">
+                  <h3>☀️ Renewable Microgrid & BESS Storage</h3>
+                  <span class="live-badge"><span class="live-dot"></span> Clean Solar Sync</span>
+                </div>
+                <div class="microgrid-mode-selector">
+                  <span class="mode-label">Dispatch Mode:</span>
+                  <button class="microgrid-mode-btn active" data-mode="auto_peak_shaving" id="mode-peak-shaving">Auto Peak Shaving</button>
+                  <button class="microgrid-mode-btn" data-mode="solar_priority" id="mode-solar-priority">Solar Priority</button>
+                  <button class="microgrid-mode-btn" data-mode="battery_reserve" id="mode-battery-reserve">Battery Reserve</button>
+                </div>
+              </div>
+              <div class="microgrid-grid">
+                <!-- Solar PV Array -->
+                <div class="microgrid-col">
+                  <div class="mg-stat-header">
+                    <span class="mg-icon solar-glow">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    </span>
+                    <div>
+                      <span class="mg-title">Rooftop Solar PV Array</span>
+                      <span class="mg-sub">400-Panel High Efficiency Array</span>
+                    </div>
+                  </div>
+                  <div class="mg-val-row">
+                    <span class="mg-value text-teal" id="solar-kw">8.6</span>
+                    <span class="mg-unit">kW</span>
+                    <span class="mg-trend green" id="solar-efficiency">92.4% eff</span>
+                  </div>
+                  <div class="mg-meter-track">
+                    <div class="mg-meter-fill solar-fill" id="solar-meter" style="width: 72%"></div>
+                  </div>
+                  <div class="mg-footer-detail">
+                    <span>Irradiance: <strong>920 W/m²</strong></span>
+                    <span class="badge-tag green">Zero Grid Carbon</span>
+                  </div>
+                </div>
+
+                <!-- BESS Battery Storage -->
+                <div class="microgrid-col">
+                  <div class="mg-stat-header">
+                    <span class="mg-icon battery-glow">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="6" width="18" height="12" rx="2"/><line x1="23" y1="10" x2="23" y2="14"/><line x1="6" y1="10" x2="6" y2="14"/><line x1="10" y1="10" x2="10" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
+                    </span>
+                    <div>
+                      <span class="mg-title">BESS Lithium Storage (60 kWh)</span>
+                      <span class="mg-sub" id="bess-flow-label">Discharging to shave peak tariff</span>
+                    </div>
+                  </div>
+                  <div class="mg-val-row">
+                    <span class="mg-value text-cyan" id="bess-soc">76.0</span>
+                    <span class="mg-unit">% SOC</span>
+                    <span class="mg-trend cyan" id="bess-flow-rate">-2.8 kW Active</span>
+                  </div>
+                  <div class="mg-meter-track">
+                    <div class="mg-meter-fill bess-fill" id="bess-meter" style="width: 76%"></div>
+                  </div>
+                  <div class="mg-footer-detail">
+                    <span>Stored: <strong id="bess-kwh">45.6 kWh</strong></span>
+                    <span>Reserve: <strong>14.4 kWh</strong></span>
+                  </div>
+                </div>
+
+                <!-- Clean Energy Offset Impact -->
+                <div class="microgrid-col highlight-col">
+                  <div class="mg-stat-header">
+                    <span class="mg-icon offset-glow">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    </span>
+                    <div>
+                      <span class="mg-title">Clean Carbon Offset Today</span>
+                      <span class="mg-sub">Direct grid coal displacement</span>
+                    </div>
+                  </div>
+                  <div class="mg-val-row">
+                    <span class="mg-value green-text" id="offset-co2">18.4</span>
+                    <span class="mg-unit">kg CO₂ saved</span>
+                  </div>
+                  <div class="mg-offset-badges">
+                    <span class="mg-offset-pill">🌳 ~7.2 Trees Equivalent</span>
+                    <span class="mg-offset-pill">⚡ $18.40 Peak Tariff Saved</span>
+                  </div>
+                  <div class="mg-footer-detail">
+                    <span>Municipal Factor: <strong>0.82 kg/kWh</strong></span>
+                    <span class="text-teal font-semibold">Net-Zero Track</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <!-- Charts Row -->
           <section class="charts-grid">
             <div class="section-card">
@@ -386,11 +498,161 @@
         <div id="page-digital-twin" class="page">
           <section class="twin-section">
             <div class="section-card twin-card">
-              <div class="section-header">
-                <h3>🏭 Factory Digital Twin</h3>
-                <span class="live-badge"><span class="live-dot"></span> Real-Time Sync</span>
+              <div class="section-header twin-header">
+                <div>
+                  <h3>🏭 Factory Floor Digital Twin</h3>
+                  <span class="live-badge"><span class="live-dot"></span> Real-Time Synchronized</span>
+                </div>
+                <div class="twin-view-controls">
+                  <div class="view-toggle-group">
+                    <button class="view-toggle-btn active" id="btn-view-map">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+                      <span>2.5D Floor Layout Map</span>
+                    </button>
+                    <button class="view-toggle-btn" id="btn-view-cards">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                      <span>Machine Cards Grid</span>
+                    </button>
+                  </div>
+                  <div class="twin-status-legend">
+                    <span class="legend-item"><span class="legend-dot online"></span> Nominal</span>
+                    <span class="legend-item"><span class="legend-dot warning"></span> Warning</span>
+                    <span class="legend-item"><span class="legend-dot danger"></span> Thermal Trip Threat</span>
+                    <span class="legend-item"><span class="legend-dot offline"></span> Maintenance</span>
+                  </div>
+                </div>
               </div>
-              <div class="factory-floor" id="factory-floor">
+
+              <!-- 2.5D Interactive Schematic Factory Floor Map -->
+              <div class="factory-floor-map-wrapper" id="factory-floor-map-container">
+                <div class="floor-map-zones-header">
+                  <div class="map-zone-tag zone-a">Zone A: Precision CNC Machining</div>
+                  <div class="map-zone-tag zone-b">Zone B: Heavy Forming & Molding</div>
+                  <div class="map-zone-tag zone-c">Zone C: Robotic Assembly & Welding</div>
+                </div>
+
+                <div class="floor-map-canvas-area" id="interactive-floor-map">
+                  <!-- SVG Floor Map Layout -->
+                  <svg class="factory-floor-svg" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet">
+                    <!-- Floor Grids & Pathways -->
+                    <defs>
+                      <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#0a121f" stop-opacity="0.8"/>
+                        <stop offset="100%" stop-color="#101a2e" stop-opacity="0.9"/>
+                      </linearGradient>
+                      <linearGradient id="chillerFlowGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#06b6d4"/>
+                        <stop offset="100%" stop-color="#3b82f6"/>
+                      </linearGradient>
+                      <linearGradient id="powerBusGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#f59e0b"/>
+                        <stop offset="100%" stop-color="#00d4aa"/>
+                      </linearGradient>
+                    </defs>
+
+                    <!-- Factory Boundaries -->
+                    <rect x="20" y="20" width="960" height="480" rx="16" fill="url(#gridGrad)" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+                    <!-- Grid Lines -->
+                    <path d="M 20 180 L 980 180 M 20 340 L 980 340 M 340 20 L 340 500 M 680 20 L 680 500" stroke="rgba(255,255,255,0.03)" stroke-width="2" stroke-dasharray="4 6"/>
+                    
+                    <!-- Infrastructure Lines: Chiller Coolant Piping (Loop 3) -->
+                    <path d="M 60 460 L 520 460 L 520 250 L 860 250" fill="none" stroke="#06b6d4" stroke-width="4" stroke-dasharray="8 6" opacity="0.65" class="chiller-pipe-flow"/>
+                    <text x="70" y="450" fill="#06b6d4" font-size="11" font-family="'JetBrains Mono', monospace">❄ CHILLER LOOP 3 (8°C GLYCOL)</text>
+
+                    <!-- Infrastructure Lines: Solar Inverter Busway -->
+                    <path d="M 60 60 L 940 60" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6 4" opacity="0.55" class="power-bus-flow"/>
+                    <text x="70" y="52" fill="#f59e0b" font-size="11" font-family="'JetBrains Mono', monospace">⚡ 480V ZERO-CARBON SOLAR FEED</text>
+
+                    <!-- Auxiliary Stations: Chiller Unit B -->
+                    <g transform="translate(40, 390)" class="infra-node">
+                      <rect width="130" height="60" rx="8" fill="#132238" stroke="#06b6d4" stroke-width="1.5"/>
+                      <text x="15" y="25" fill="#f8fafc" font-size="12" font-weight="bold">Chiller Unit B</text>
+                      <text x="15" y="44" fill="#06b6d4" font-size="10">Flow: 240 L/min</text>
+                    </g>
+
+                    <!-- Auxiliary Stations: Solar Inverter -->
+                    <g transform="translate(810, 30)" class="infra-node">
+                      <rect width="140" height="50" rx="8" fill="#1e2418" stroke="#00d4aa" stroke-width="1.5"/>
+                      <text x="12" y="22" fill="#f8fafc" font-size="11" font-weight="bold">Rooftop PV Substation</text>
+                      <text x="12" y="38" fill="#00d4aa" font-size="10">Output: 8.6 kW Sync</text>
+                    </g>
+                  </svg>
+
+                  <!-- Interactive Machine Pods overlaid on floor coordinates -->
+                  <!-- Machine 1: Bay 1 / Zone A -->
+                  <div class="map-machine-pod online" id="map-pod-1" data-machine="1" style="left: 14%; top: 40%;">
+                    <div class="pod-halo online-halo"></div>
+                    <div class="pod-card">
+                      <div class="pod-badge-status online-badge">● Online</div>
+                      <div class="pod-title">Machine 1</div>
+                      <div class="pod-type">CNC Lathe</div>
+                      <div class="pod-metrics">
+                        <span><strong id="map-m1-temp">42°C</strong> | <span id="map-m1-load">72%</span> load</span>
+                      </div>
+                      <div class="pod-action-hint">🔍 Click to Inspect</div>
+                    </div>
+                  </div>
+
+                  <!-- Machine 2: Bay 2 / Zone B -->
+                  <div class="map-machine-pod warning" id="map-pod-2" data-machine="2" style="left: 42%; top: 22%;">
+                    <div class="pod-halo warning-halo"></div>
+                    <div class="pod-card">
+                      <div class="pod-badge-status warning-badge">⚠️ 142 Hz Flutter</div>
+                      <div class="pod-title">Machine 2</div>
+                      <div class="pod-type">Hydraulic Press</div>
+                      <div class="pod-metrics">
+                        <span><strong class="warning-text" id="map-m2-temp">78°C</strong> | <span id="map-m2-load">94%</span> load</span>
+                      </div>
+                      <div class="pod-action-hint">🔍 Click to Inspect</div>
+                    </div>
+                  </div>
+
+                  <!-- Machine 3: Bay 3 / Zone B -->
+                  <div class="map-machine-pod danger pulse-danger" id="map-pod-3" data-machine="3" style="left: 54%; top: 56%;">
+                    <div class="pod-halo danger-halo"></div>
+                    <div class="pod-card">
+                      <div class="pod-badge-status danger-badge">🔴 Critical Overheat</div>
+                      <div class="pod-title">Machine 3</div>
+                      <div class="pod-type">Injection Molder</div>
+                      <div class="pod-metrics">
+                        <span><strong class="danger-text" id="map-m3-temp">89°C</strong> | <span id="map-m3-load">98%</span> load</span>
+                      </div>
+                      <div class="pod-action-hint">⚡ Mitigate / Inspect</div>
+                    </div>
+                  </div>
+
+                  <!-- Machine 4: Bay 4 / Zone C -->
+                  <div class="map-machine-pod online" id="map-pod-4" data-machine="4" style="left: 76%; top: 28%;">
+                    <div class="pod-halo online-halo"></div>
+                    <div class="pod-card">
+                      <div class="pod-badge-status online-badge">● Ready</div>
+                      <div class="pod-title">Machine 4</div>
+                      <div class="pod-type">Assembly Robot</div>
+                      <div class="pod-metrics">
+                        <span><strong id="map-m4-temp">38°C</strong> | <span id="map-m4-load">55%</span> load</span>
+                      </div>
+                      <div class="pod-action-hint">🔍 Click to Inspect</div>
+                    </div>
+                  </div>
+
+                  <!-- Machine 5: Bay 5 / Zone C -->
+                  <div class="map-machine-pod offline" id="map-pod-5" data-machine="5" style="left: 84%; top: 62%;">
+                    <div class="pod-halo offline-halo"></div>
+                    <div class="pod-card">
+                      <div class="pod-badge-status offline-badge">⏸ Maintenance</div>
+                      <div class="pod-title">Machine 5</div>
+                      <div class="pod-type">Welding Unit</div>
+                      <div class="pod-metrics">
+                        <span><span id="map-m5-temp">--°C</span> | 0% load</span>
+                      </div>
+                      <div class="pod-action-hint">🔍 View Overhaul Log</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Traditional Machine Cards Grid (Toggleable) -->
+              <div class="factory-floor" id="factory-floor" style="display: none;">
                 <div class="factory-machine" id="machine-1" data-machine="1">
                   <div class="machine-visual">
                     <div class="machine-body">
@@ -406,7 +668,10 @@
                       <div class="ms"><span class="ms-label">Load</span><span class="ms-val" id="m1-load">72%</span></div>
                       <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val" id="m1-vibr">Normal</span></div>
                     </div>
-                    <span class="machine-status-text online">● Online</span>
+                    <div class="machine-card-footer">
+                      <span class="machine-status-text online">● Online</span>
+                      <button class="btn-inspect-machine" data-machine="1">🔍 Diagnostics</button>
+                    </div>
                   </div>
                 </div>
 
@@ -425,7 +690,10 @@
                       <div class="ms"><span class="ms-label">Load</span><span class="ms-val warning-text" id="m2-load">94%</span></div>
                       <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val warning-text" id="m2-vibr">High</span></div>
                     </div>
-                    <span class="machine-status-text warning">⚠ Warning</span>
+                    <div class="machine-card-footer">
+                      <span class="machine-status-text warning">⚠ Warning</span>
+                      <button class="btn-inspect-machine" data-machine="2">🔍 Diagnostics</button>
+                    </div>
                   </div>
                 </div>
 
@@ -444,7 +712,10 @@
                       <div class="ms"><span class="ms-label">Load</span><span class="ms-val danger-text" id="m3-load">98%</span></div>
                       <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val danger-text" id="m3-vibr">Critical</span></div>
                     </div>
-                    <span class="machine-status-text danger">🔴 Critical</span>
+                    <div class="machine-card-footer">
+                      <span class="machine-status-text danger">🔴 Critical</span>
+                      <button class="btn-inspect-machine" data-machine="3">🔍 Diagnostics</button>
+                    </div>
                   </div>
                 </div>
 
@@ -463,7 +734,10 @@
                       <div class="ms"><span class="ms-label">Load</span><span class="ms-val" id="m4-load">55%</span></div>
                       <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val" id="m4-vibr">Normal</span></div>
                     </div>
-                    <span class="machine-status-text online">● Online</span>
+                    <div class="machine-card-footer">
+                      <span class="machine-status-text online">● Online</span>
+                      <button class="btn-inspect-machine" data-machine="4">🔍 Diagnostics</button>
+                    </div>
                   </div>
                 </div>
 
@@ -482,7 +756,10 @@
                       <div class="ms"><span class="ms-label">Load</span><span class="ms-val muted" id="m5-load">0%</span></div>
                       <div class="ms"><span class="ms-label">Vibr</span><span class="ms-val muted" id="m5-vibr">Off</span></div>
                     </div>
-                    <span class="machine-status-text offline">⏸ Maintenance</span>
+                    <div class="machine-card-footer">
+                      <span class="machine-status-text offline">⏸ Maintenance</span>
+                      <button class="btn-inspect-machine" data-machine="5">🔍 Diagnostics</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -511,6 +788,183 @@
               </div>
               <div class="chart-container">
                 <canvas id="prediction-accuracy-chart"></canvas>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========== WHAT-IF SIMULATION STUDIO PAGE ========== -->
+        <div id="page-simulation" class="page">
+          <section class="simulation-section">
+            <div class="section-card simulation-header-card">
+              <div class="section-header">
+                <div>
+                  <h3>🧪 What-If Scenario Simulator & Zero-Emission Sandbox</h3>
+                  <p class="section-desc">Stress-test operating loads, renewable mix, and ambient heat waves before applying changes to the physical shop floor.</p>
+                </div>
+                <div class="scenario-presets">
+                  <span class="preset-label">Presets:</span>
+                  <button class="preset-pill active" id="preset-benchmark" data-preset="benchmark">🌿 Net-Zero Benchmark</button>
+                  <button class="preset-pill" id="preset-peak" data-preset="peak">⚡ Peak Production Rush</button>
+                  <button class="preset-pill" id="preset-night" data-preset="night">🌙 Night Shift Eco-Cycle</button>
+                  <button class="preset-pill" id="preset-heatwave" data-preset="heatwave">🔥 Summer Heatwave (+12°C)</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="simulation-layout-grid">
+              <!-- Left: Controls -->
+              <div class="section-card sim-controls-card">
+                <div class="card-subtitle">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+                  <span>Scenario Parameters</span>
+                </div>
+
+                <!-- Slider 1: Factory Production Throughput -->
+                <div class="sim-slider-group">
+                  <div class="sim-slider-header">
+                    <label for="sim-load">Factory Production Throughput</label>
+                    <span class="sim-slider-val" id="sim-load-val">100%</span>
+                  </div>
+                  <input type="range" id="sim-load" class="sim-range" min="50" max="150" value="100" step="5">
+                  <div class="sim-slider-ticks">
+                    <span>50% (Eco-Idle)</span>
+                    <span>100% (Baseline)</span>
+                    <span>150% (Overdrive)</span>
+                  </div>
+                </div>
+
+                <!-- Slider 2: Renewable Energy Share -->
+                <div class="sim-slider-group">
+                  <div class="sim-slider-header">
+                    <label for="sim-renew">Renewable Energy Mix (Solar & Battery)</label>
+                    <span class="sim-slider-val text-teal" id="sim-renew-val">40%</span>
+                  </div>
+                  <input type="range" id="sim-renew" class="sim-range renew-range" min="0" max="100" value="40" step="5">
+                  <div class="sim-slider-ticks">
+                    <span>0% (Grid Coal)</span>
+                    <span>50% (Hybrid)</span>
+                    <span>100% (Pure Net-Zero)</span>
+                  </div>
+                </div>
+
+                <!-- Slider 3: Ambient Heatwave Offset -->
+                <div class="sim-slider-group">
+                  <div class="sim-slider-header">
+                    <label for="sim-temp-offset">Ambient Factory Temp Offset</label>
+                    <span class="sim-slider-val" id="sim-temp-offset-val">+0°C</span>
+                  </div>
+                  <input type="range" id="sim-temp-offset" class="sim-range temp-range" min="-5" max="15" value="0" step="1">
+                  <div class="sim-slider-ticks">
+                    <span>-5°C (Winter)</span>
+                    <span>Nominal (32°C)</span>
+                    <span>+15°C (Extreme Heat)</span>
+                  </div>
+                </div>
+
+                <!-- Toggles -->
+                <div class="sim-toggles-grid">
+                  <label class="toggle-card">
+                    <input type="checkbox" id="sim-eco-pulse" checked>
+                    <span class="toggle-switch"></span>
+                    <div class="toggle-text">
+                      <strong>Dynamic Eco-Pulse Inverter</strong>
+                      <small>Modulates voltage harmonics to eliminate reactive power wastage</small>
+                    </div>
+                  </label>
+
+                  <label class="toggle-card">
+                    <input type="checkbox" id="sim-chiller-precool">
+                    <span class="toggle-switch"></span>
+                    <div class="toggle-text">
+                      <strong>Chiller Unit B Pre-Cooling</strong>
+                      <small>Pre-chills secondary glycol loop before thermal ramp-up</small>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="sim-actions-row">
+                  <button class="btn-primary" id="btn-apply-simulation">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    <span>🚀 Apply Scenario to Live Digital Twin</span>
+                  </button>
+                  <button class="btn-secondary" id="btn-reset-simulation">Reset to Baseline</button>
+                </div>
+              </div>
+
+              <!-- Right: Projection Meters & Live Comparison -->
+              <div class="sim-projections-card">
+                <div class="sim-metrics-grid">
+                  <!-- Meter 1: Carbon Output -->
+                  <div class="sim-metric-box">
+                    <div class="sim-box-header">
+                      <span class="sim-box-title">Projected Carbon Rate</span>
+                      <span class="sim-pill" id="sim-carbon-badge">Inside Budget</span>
+                    </div>
+                    <div class="sim-metric-num">
+                      <span id="sim-carbon-rate">7.4</span>
+                      <small>kg CO₂/hr</small>
+                    </div>
+                    <div class="sim-shift-total">
+                      <span>Shift Total (8h): <strong id="sim-shift-carbon">29.6 kg</strong></span>
+                      <span class="text-muted">/ 50 kg Cap</span>
+                    </div>
+                  </div>
+
+                  <!-- Meter 2: Power Demand & Cost -->
+                  <div class="sim-metric-box">
+                    <div class="sim-box-header">
+                      <span class="sim-box-title">Projected Power & Cost</span>
+                      <span class="sim-pill cyan" id="sim-cost-badge">$0.18/kWh</span>
+                    </div>
+                    <div class="sim-metric-num">
+                      <span id="sim-power-rate">14.8</span>
+                      <small>kW</small>
+                    </div>
+                    <div class="sim-shift-total">
+                      <span>Shift Cost: <strong id="sim-shift-cost">$21.31</strong></span>
+                      <span class="text-teal">Tax Saved: <strong id="sim-tax-saved">$1.20</strong></span>
+                    </div>
+                  </div>
+
+                  <!-- Meter 3: Equipment Stress Index -->
+                  <div class="sim-metric-box">
+                    <div class="sim-box-header">
+                      <span class="sim-box-title">Equipment Stress Index</span>
+                      <span class="sim-pill" id="sim-stress-badge">Nominal</span>
+                    </div>
+                    <div class="sim-metric-num">
+                      <span id="sim-stress-percent">38%</span>
+                    </div>
+                    <div class="stress-bar-track">
+                      <div class="stress-bar-fill" id="sim-stress-bar" style="width: 38%"></div>
+                    </div>
+                  </div>
+
+                  <!-- Meter 4: ESG Compliance Score -->
+                  <div class="sim-metric-box">
+                    <div class="sim-box-header">
+                      <span class="sim-box-title">ESG Compliance Rating</span>
+                      <span class="sim-pill green">Zero-Emission Index</span>
+                    </div>
+                    <div class="sim-metric-num esg-num">
+                      <span id="sim-esg-rating" class="text-teal">A+</span>
+                    </div>
+                    <div class="sim-shift-total">
+                      <span id="sim-esg-sub">Zero-Emission Leader (Exceeds COP30 Goals)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Simulation Visual Projection Chart -->
+                <div class="section-card sim-chart-card">
+                  <div class="section-header">
+                    <h4>📊 8-Hour Projected Shift Emissions Curve vs Budget</h4>
+                  </div>
+                  <div class="chart-container" style="height: 220px;">
+                    <canvas id="simulation-chart"></canvas>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -591,6 +1045,38 @@
                 <!-- Filled by JS -->
               </div>
             </div>
+
+            <!-- Active Maintenance Work Orders -->
+            <div class="section-card work-orders-card">
+              <div class="section-header">
+                <div>
+                  <h3>📋 Maintenance Work Orders & Dispatch</h3>
+                  <p class="section-desc">Closed-loop technician work orders with Lockout/Tagout (LOTO) and spare parts routing.</p>
+                </div>
+                <button class="btn-primary btn-sm" id="btn-create-work-order">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>Dispatch New Work Order</span>
+                </button>
+              </div>
+              <div class="work-orders-table-wrapper">
+                <table class="styled-table work-orders-table">
+                  <thead>
+                    <tr>
+                      <th>Ticket ID</th>
+                      <th>Equipment & Bay</th>
+                      <th>Priority</th>
+                      <th>Issue & Fault Cause</th>
+                      <th>Technician</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="work-orders-tbody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </section>
         </div>
 
@@ -638,6 +1124,149 @@
                   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
                   <p>No reports generated yet. Click a button above to generate.</p>
                 </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ========== ADMIN FLEET & COMPANY JOURNEY PAGE ========== -->
+        <div id="page-admin" class="page">
+          <!-- Company Journey & Milestone Progression Header -->
+          <section class="admin-journey-section">
+            <div class="section-card journey-card">
+              <div class="journey-header">
+                <div>
+                  <div class="journey-tag-row">
+                    <span class="journey-badge">🚀 Company Scaling Journey</span>
+                    <span class="journey-phase-pill" id="journey-phase-indicator">Active Phase 2: Pilot Plant</span>
+                  </div>
+                  <h3>Factory Fleet Scaling & Growth Milestones</h3>
+                  <p class="journey-subtitle">
+                    Dynamically scale your factory machinery footprint according to your company growth trajectory. As customer orders expand, deploy new production cells with one click.
+                  </p>
+                </div>
+                <div class="journey-actions">
+                  <button class="btn-primary" id="btn-open-add-machine-modal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span>+ Add Custom Machine</span>
+                  </button>
+                  <button class="btn-scale-milestone" id="btn-quick-scale-phase3">
+                    <span>🚀 Scale to Phase 3 (+3 Machines)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Journey Timeline / Roadmap Stepper -->
+              <div class="journey-timeline">
+                <div class="journey-step completed">
+                  <div class="step-marker">✓</div>
+                  <div class="step-info">
+                    <span class="step-phase">Phase 1: Seed Prototype</span>
+                    <h4>Initial Machining Cell</h4>
+                    <span class="step-machines">2 Machines (CNC & Press)</span>
+                    <span class="step-tag success">Achieved</span>
+                  </div>
+                </div>
+                <div class="journey-step active" id="journey-step-2">
+                  <div class="step-marker">2</div>
+                  <div class="step-info">
+                    <span class="step-phase">Phase 2: Pilot Plant</span>
+                    <h4>Core 5-Machine Fleet</h4>
+                    <span class="step-machines">5 Machines (Bays 1-5)</span>
+                    <span class="step-tag current">Active Current Stage</span>
+                  </div>
+                </div>
+                <div class="journey-step upcoming" id="journey-step-3">
+                  <div class="step-marker">3</div>
+                  <div class="step-info">
+                    <span class="step-phase">Phase 3: Commercial Growth</span>
+                    <h4>Multi-Bay Expansion</h4>
+                    <span class="step-machines">8 Machines (+Laser, Heat Pump, Extruder)</span>
+                    <button class="step-action-btn" id="step-btn-deploy-phase3">Deploy Milestone</button>
+                  </div>
+                </div>
+                <div class="journey-step locked" id="journey-step-4">
+                  <div class="step-marker">4</div>
+                  <div class="step-info">
+                    <span class="step-phase">Phase 4: Megafactory</span>
+                    <h4>Zero-Carbon Autonomous Complex</h4>
+                    <span class="step-machines">12 Machines (+3D Metal, AMR, Induction, QA)</span>
+                    <button class="step-action-btn" id="step-btn-deploy-phase4">Deploy Megafactory</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Fleet Capacity & Summary Metric Cards -->
+          <section class="admin-kpi-grid">
+            <div class="section-card kpi-card">
+              <span class="kpi-icon">🏭</span>
+              <div class="kpi-data">
+                <span class="kpi-label">Active Machinery Fleet</span>
+                <span class="kpi-val" id="admin-total-machines">5 Machines</span>
+                <span class="kpi-sub" id="admin-fleet-status-sub">5/5 Connected & Synced</span>
+              </div>
+            </div>
+            <div class="section-card kpi-card">
+              <span class="kpi-icon">⚡</span>
+              <div class="kpi-data">
+                <span class="kpi-label">Connected Rated Power</span>
+                <span class="kpi-val" id="admin-total-power">19.5 kW Peak</span>
+                <span class="kpi-sub">Clean Microgrid Interconnected</span>
+              </div>
+            </div>
+            <div class="section-card kpi-card">
+              <span class="kpi-icon">👥</span>
+              <div class="kpi-data">
+                <span class="kpi-label">Floor Workforce Coverage</span>
+                <span class="kpi-val" id="admin-total-workforce">16 Operators</span>
+                <span class="kpi-sub">Ratio: 3.2 workers / machine</span>
+              </div>
+            </div>
+            <div class="section-card kpi-card">
+              <span class="kpi-icon">🌿</span>
+              <div class="kpi-data">
+                <span class="kpi-label">Carbon Quota Per Machine</span>
+                <span class="kpi-val" id="admin-carbon-share">10.0 kg / unit</span>
+                <span class="kpi-sub">50.0 kg Daily Statutory Cap</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Machinery Fleet Inventory Table -->
+          <section class="admin-fleet-table-section">
+            <div class="section-card">
+              <div class="section-header">
+                <div>
+                  <h3>🛠️ Machinery Fleet Inventory & Floor Allocation</h3>
+                  <p class="card-subtitle">Manage live machine twins, configure parameters, toggle maintenance status, or decommission machines as operations evolve.</p>
+                </div>
+                <div class="fleet-table-actions">
+                  <button class="btn-secondary btn-sm" id="btn-admin-refresh-fleet">↻ Refresh Fleet</button>
+                  <button class="btn-primary btn-sm" id="btn-admin-add-machine-top">+ Add Machine</button>
+                </div>
+              </div>
+
+              <div class="admin-table-wrapper">
+                <table class="styled-table admin-machines-table">
+                  <thead>
+                    <tr>
+                      <th>Machine ID</th>
+                      <th>Equipment & Type</th>
+                      <th>Bay Location</th>
+                      <th>Journey Milestone</th>
+                      <th>Operating Load</th>
+                      <th>Temperature</th>
+                      <th>Vibration</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-machines-tbody">
+                    <!-- Rendered by JS -->
+                  </tbody>
+                </table>
               </div>
             </div>
           </section>
@@ -786,6 +1415,320 @@
           </button>
           <button id="dismiss-modal-btn" class="btn-secondary">Acknowledge & Review Shift</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ==================== MACHINE DIAGNOSTIC INSPECTOR MODAL ==================== -->
+    <div id="machine-inspector-modal" class="modal-backdrop" style="display:none">
+      <div class="modal-card inspector-modal-card">
+        <div class="modal-header">
+          <div class="inspector-header-info">
+            <span class="inspector-tag" id="inspect-bay">Bay 2 - Section C</span>
+            <h3 id="inspect-title">Machine 3 (Injection Molder)</h3>
+            <span class="inspector-serial" id="inspect-serial">SN-2026-03-ECO • Model IMX-880</span>
+          </div>
+          <div class="inspector-header-right">
+            <span class="status-badge" id="inspect-status-badge">🔴 Critical Overheat</span>
+            <button id="close-inspector-btn" class="modal-close" title="Close Inspector">✕</button>
+          </div>
+        </div>
+
+        <div class="modal-body inspector-body">
+          <div class="inspector-grid">
+            <!-- 1. Live Thermal Gradient Heatmap -->
+            <div class="inspector-panel heatmap-panel">
+              <div class="panel-header">
+                <h4>🔥 Component Thermal Heatmap</h4>
+                <span class="sub-label">Sensors: FLIR IR Arrays</span>
+              </div>
+              <div class="heatmap-schematic">
+                <div class="heatmap-zone zone-stator" id="zone-stator">
+                  <span class="hz-name">Drive Motor Stator</span>
+                  <span class="hz-temp" id="hz-stator-temp">89.4°C</span>
+                  <span class="hz-status danger">Trip limit: 95°C</span>
+                </div>
+                <div class="heatmap-zone zone-bearing" id="zone-bearing">
+                  <span class="hz-name">Main Spindle Bearing</span>
+                  <span class="hz-temp" id="hz-bearing-temp">91.2°C</span>
+                  <span class="hz-status warning">Friction warning</span>
+                </div>
+                <div class="heatmap-zone zone-hydraulics" id="zone-hydraulics">
+                  <span class="hz-name">Hydraulic Manifold</span>
+                  <span class="hz-temp" id="hz-hyd-temp">83.0°C</span>
+                  <span class="hz-status warning">Pressure: 180 Bar</span>
+                </div>
+                <div class="heatmap-zone zone-chiller" id="zone-chiller">
+                  <span class="hz-name">Glycol Heat Exchanger</span>
+                  <span class="hz-temp" id="hz-chiller-temp">28.4°C</span>
+                  <span class="hz-status online">Loop 3 Ready</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Vibration FFT Harmonic Spectrum -->
+            <div class="inspector-panel fft-panel">
+              <div class="panel-header">
+                <h4>〰️ Vibration FFT Frequency Spectrum</h4>
+                <span class="sub-label" id="fft-peak-label">Peak: 142 Hz (Bearing Flutter)</span>
+              </div>
+              <div class="fft-canvas-container">
+                <canvas id="fft-canvas" width="400" height="170"></canvas>
+              </div>
+              <div class="fft-legend">
+                <span><span class="dot-base"></span> Baseline (0-60 Hz)</span>
+                <span><span class="dot-harmonic"></span> Harmonic Anomaly</span>
+                <span><span class="dot-trip"></span> Trip Threshold</span>
+              </div>
+            </div>
+
+            <!-- 3. RUL Countdown & Prognostics -->
+            <div class="inspector-panel rul-panel">
+              <div class="panel-header">
+                <h4>⏳ AI Prognostics & Remaining Useful Life (RUL)</h4>
+              </div>
+              <div class="rul-display">
+                <div class="rul-time-badge" id="rul-time-badge">
+                  <span class="rul-clock-icon">⏱️</span>
+                  <div>
+                    <span class="rul-clock-val" id="rul-countdown">4.8 min</span>
+                    <span class="rul-clock-label">Until Projected Thermal Trip</span>
+                  </div>
+                </div>
+                <div class="rul-stats-list">
+                  <div class="rul-stat-row">
+                    <span>Thermal Velocity (ΔT/Δt)</span>
+                    <strong class="text-danger" id="rul-velocity">+2.4°C / min</strong>
+                  </div>
+                  <div class="rul-stat-row">
+                    <span>Bearing Harmonic Load</span>
+                    <strong class="text-warning" id="rul-harmonic">142 Hz (High Flutter)</strong>
+                  </div>
+                  <div class="rul-stat-row">
+                    <span>Nominal Design MTBF</span>
+                    <strong class="text-muted">8,400 Operating Hours</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 4. Direct Closed-Loop Controls -->
+            <div class="inspector-panel controls-panel">
+              <div class="panel-header">
+                <h4>⚡ Direct Operator Mitigations</h4>
+              </div>
+              <div class="machine-controls-list">
+                <div class="control-row">
+                  <label for="inspect-throttle-slider">Operational Speed / Load Throttle:</label>
+                  <div class="throttle-slider-wrap">
+                    <input type="range" id="inspect-throttle-slider" min="40" max="100" value="98">
+                    <span id="inspect-throttle-val">98%</span>
+                  </div>
+                </div>
+                <div class="control-buttons-grid">
+                  <button class="btn-control action-cool" id="btn-cool-machine">
+                    ❄ Engage Secondary Chiller
+                  </button>
+                  <button class="btn-control action-loto" id="btn-dispatch-wo-machine">
+                    📋 Dispatch Work Order Ticket
+                  </button>
+                  <button class="btn-control action-estop" id="btn-estop-machine">
+                    ⛔ Emergency Safe Stop (E-Stop)
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== WORK ORDER DISPATCH MODAL ==================== -->
+    <div id="work-order-modal" class="modal-backdrop" style="display:none">
+      <div class="modal-card work-order-card">
+        <div class="modal-header">
+          <div class="wo-header-left">
+            <span class="wo-badge">Official Maintenance Dispatch</span>
+            <h3 id="wo-modal-id">WO-2026-0894</h3>
+          </div>
+          <button id="close-wo-btn" class="modal-close" title="Close">✕</button>
+        </div>
+        <div class="modal-body wo-modal-body">
+          <div class="wo-ticket-container" id="printable-work-order">
+            <div class="wo-ticket-header">
+              <div class="wo-facility-info">
+                <strong>ECOSYNC SMART MANUFACTURING FACILITY</strong>
+                <small>Predictive Maintenance & Zero-Emission Protocol</small>
+              </div>
+              <div class="wo-barcode">
+                <div class="barcode-bars">||| | |||| | || ||| || ||| | |||</div>
+                <span class="barcode-text" id="wo-barcode-text">WO-2026-0894-LOTO</span>
+              </div>
+            </div>
+
+            <div class="wo-ticket-grid">
+              <div class="wo-field">
+                <label>Target Machine:</label>
+                <select id="wo-select-machine" class="styled-select">
+                  <option value="1">Machine 1 (CNC Lathe) - Bay 1</option>
+                  <option value="2">Machine 2 (Hydraulic Press) - Bay 1</option>
+                  <option value="3" selected>Machine 3 (Injection Molder) - Bay 2</option>
+                  <option value="4">Machine 4 (Assembly Robot) - Bay 3</option>
+                  <option value="5">Machine 5 (Welding Unit) - Bay 3</option>
+                </select>
+              </div>
+
+              <div class="wo-field">
+                <label>Priority Level:</label>
+                <select id="wo-select-priority" class="styled-select">
+                  <option value="Critical" selected>🔴 CRITICAL (P1 - Imminent Trip)</option>
+                  <option value="High">🟠 HIGH (P2 - 24-hr Resolution)</option>
+                  <option value="Normal">🟢 NORMAL (P3 - Scheduled Overhaul)</option>
+                </select>
+              </div>
+
+              <div class="wo-field full-width">
+                <label>AI Fault Diagnosis & Root Cause:</label>
+                <input type="text" id="wo-issue-input" class="styled-input" value="Spindle thermal runaway (89°C) & primary glycol fluid breakdown; predicted failure in 4.8 min.">
+              </div>
+
+              <div class="wo-field full-width">
+                <label>Required Tooling & Replacement Parts:</label>
+                <input type="text" id="wo-parts-input" class="styled-input" value="SKF 6205-2RS Ceramic Bearing, Glycol Chiller Filter Cartridge, Coolant 50/50 Mix">
+              </div>
+
+              <div class="wo-field">
+                <label>Assigned Lead Technician:</label>
+                <input type="text" id="wo-tech-input" class="styled-input" value="Marcus Vance (Shift Lead)">
+              </div>
+
+              <div class="wo-field">
+                <label>LOTO (Lockout/Tagout) Safety Checklist:</label>
+                <div class="loto-checkboxes">
+                  <label><input type="checkbox" checked id="loto-elec"> Electrical Disconnect Locked</label>
+                  <label><input type="checkbox" checked id="loto-hyd"> Hydraulic Pressure Bled</label>
+                  <label><input type="checkbox" checked id="loto-cool"> Secondary Chiller Engaged</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn-primary" id="btn-submit-work-order">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Confirm & Dispatch Ticket</span>
+          </button>
+          <button class="btn-secondary" id="btn-print-work-order">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            <span>Print Work Order</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ADD MACHINE MODAL ==================== -->
+    <div id="add-machine-modal" class="modal-backdrop" style="display:none">
+      <div class="modal-card add-machine-modal-card">
+        <div class="modal-header">
+          <div class="modal-header-icon success-pulse">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div class="modal-header-text">
+            <h3>Deploy New Machinery Unit</h3>
+            <span class="modal-badge-teal">Company Journey Factory Expansion</span>
+          </div>
+          <button id="add-machine-close-btn" class="modal-close" title="Close Modal">✕</button>
+        </div>
+
+        <form id="add-machine-form" class="modal-body">
+          <p class="modal-lead">
+            Add a newly acquired or expanded machine to the factory floor digital twin. Its real-time telemetry, 2.5D floor coordinates, and AI health diagnostics will sync immediately.
+          </p>
+
+          <div class="admin-form-grid">
+            <div class="form-group">
+              <label for="new-machine-name">Machine Identifier / Name</label>
+              <input type="text" id="new-machine-name" class="styled-input" placeholder="e.g. Machine 6" required />
+            </div>
+
+            <div class="form-group">
+              <label for="new-machine-type">Machinery Classification</label>
+              <select id="new-machine-type" class="styled-select">
+                <option value="Precision Laser Cutter">Precision Laser Cutter (High-Speed)</option>
+                <option value="Clean Heat Pump">Clean Heat Pump (Thermal Recovery)</option>
+                <option value="Eco Extruder Unit">Eco Extruder Unit (Polymer Forming)</option>
+                <option value="Additive 3D Metal Printer">Additive 3D Metal Printer (Direct Sintering)</option>
+                <option value="Autonomous AMR Fleet Hub">Autonomous AMR Fleet Hub (Logistics)</option>
+                <option value="Clean Induction Furnace">Clean Induction Furnace (Electric Metallurgy)</option>
+                <option value="Automated Vision QA Gantry">Automated Vision QA Gantry (Inspection)</option>
+                <option value="CNC Lathe">CNC Lathe (Multi-Axis Turning)</option>
+                <option value="Hydraulic Press">Hydraulic Press (Heavy Stamping)</option>
+                <option value="Injection Molder">Injection Molder (High-Volume)</option>
+                <option value="Assembly Robot">Assembly Robot (Precision Articulated)</option>
+                <option value="Welding Unit">Welding Unit (Automated Robotic Cell)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="new-machine-bay">Assigned Factory Bay / Zone</label>
+              <select id="new-machine-bay" class="styled-select">
+                <option value="Bay 6 - Precision Cell">Bay 6 - Precision Cell (Zone A)</option>
+                <option value="Bay 7 - HVAC & Recovery">Bay 7 - HVAC & Recovery (Zone B)</option>
+                <option value="Bay 8 - Polymer Forming">Bay 8 - Polymer Forming (Zone B)</option>
+                <option value="Bay 9 - Additive Cell">Bay 9 - Additive Cell (Zone C)</option>
+                <option value="Bay 10 - Logistics Grid">Bay 10 - Logistics Grid (Zone C)</option>
+                <option value="Bay 11 - Metallurgy">Bay 11 - Metallurgy (Zone D)</option>
+                <option value="Bay 12 - Quality Inspection">Bay 12 - Quality Inspection (Zone D)</option>
+                <option value="Bay 1 - Machining">Bay 1 - Machining (Zone A)</option>
+                <option value="Bay 2 - Stamping">Bay 2 - Stamping (Zone B)</option>
+                <option value="Bay 3 - Molding">Bay 3 - Molding (Zone B)</option>
+                <option value="Bay 4 - Robotics">Bay 4 - Robotics (Zone C)</option>
+                <option value="Bay 5 - Welding">Bay 5 - Welding (Zone C)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="new-machine-journey">Company Journey Phase</label>
+              <select id="new-machine-journey" class="styled-select">
+                <option value="Phase 3: Commercial Growth">Phase 3: Commercial Growth Milestone</option>
+                <option value="Phase 4: Megafactory">Phase 4: Megafactory Zero-Carbon Milestone</option>
+                <option value="Phase 2: Pilot Plant">Phase 2: Pilot Plant Extension</option>
+                <option value="Phase 1: Seed Prototype">Phase 1: Seed Prototype</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="new-machine-load">Initial Operational Load: <span id="load-display-val">65%</span></label>
+              <input type="range" id="new-machine-load" min="20" max="100" value="65" class="styled-range" />
+            </div>
+
+            <div class="form-group">
+              <label for="new-machine-temp">Core Baseline Temperature (°C)</label>
+              <input type="number" id="new-machine-temp" class="styled-input" value="38.5" min="20" max="95" step="0.5" />
+            </div>
+
+            <div class="form-group">
+              <label for="new-machine-power">Connected Power Draw (kW)</label>
+              <input type="number" id="new-machine-power" class="styled-input" value="3.8" min="0.5" max="25" step="0.1" />
+            </div>
+
+            <div class="form-group">
+              <label for="new-machine-vibr">Vibration Tolerance Baseline</label>
+              <select id="new-machine-vibr" class="styled-select">
+                <option value="Normal">Normal (ISO 10816 Class II Standard)</option>
+                <option value="Low">Low (Precision Ultra-Quiet Harmonic)</option>
+                <option value="High">High (Needs Run-in Calibration)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-actions" style="margin-top: 1.5rem;">
+            <button type="submit" class="btn-primary" id="btn-confirm-add-machine">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              <span>Deploy Machine to Live Twin Floor</span>
+            </button>
+            <button type="button" class="btn-secondary" id="btn-cancel-add-machine">Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
 
