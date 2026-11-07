@@ -2102,6 +2102,18 @@ const EcoSyncProjectBrain = {
       };
     }
 
+    // Emergency Safe Stop (E-Stop)
+    if (q.includes('stop') || q.includes('e-stop') || q.includes('estop') || q.includes('emergency shutdown') || q.includes('shut down all')) {
+      executePlantWideEStop();
+      return {
+        reply: `⛔ **PLANT-WIDE EMERGENCY SAFE STOP (E-STOP) EXECUTED!**\n\nI have immediately triggered the emergency shutdown protocol:\n- All machinery drive loads set to **0%**.\n- Mechanical vibrations isolated (**Off**).\n- Equipment temperatures secured in cooling state.\n- Plant power draw dropped to auxiliary safety baseline (**3.2 kW**).\n\nFactory is safely locked in Emergency Stop standby.`,
+        actions: [
+          { label: '🔄 Reset & Restore Factory', action: 'reset_estop' },
+          { label: '🏭 View Digital Twin', action: 'navigate_twin', secondary: true }
+        ]
+      };
+    }
+
     // 2. Navigation Commands
     if ((q.includes('go to') || q.includes('open') || q.includes('show') || q.includes('view') || q.includes('take me to') || q.includes('switch to')) && (q.includes('twin') || q.includes('digital twin'))) {
       navigateToPage('digital-twin');
@@ -2573,6 +2585,16 @@ function handleChatAction(action) {
       appendChatMessage('bot', '✅ **Auxiliary Manpower Deployed!** +4 Technicians have been assigned to Assembly Line 4. Total throughput restored to 100% and daily revenue targets safeguarded.');
       scrollChatToBottom();
       break;
+    case 'reset_estop':
+      resetPlantWideEStop();
+      appendChatMessage('bot', '✔ **Factory Restored!** All machine lines brought back online to nominal capacity baseline.', [
+        { label: '🏭 View Digital Twin Floor', action: 'navigate_twin' }
+      ]);
+      scrollChatToBottom();
+      break;
+    case 'execute_estop':
+      executePlantWideEStop();
+      break;
     default:
       break;
   }
@@ -2959,9 +2981,27 @@ function initMachineInspector() {
         m.temp = Math.max(45, m.temp - 21);
         m.status = 'online';
         m.vibr = 'Normal';
+        
+        const badgeEl = document.getElementById('inspect-status-badge');
+        if (badgeEl) {
+          badgeEl.className = 'status-badge online';
+          badgeEl.textContent = '● Online (Cooled)';
+        }
+        updateOpenMachineInspector(m);
         updateDigitalTwinDisplay();
+        syncFloorMapWithMachines();
+        syncMachineCardsWithMachines();
+        renderAdminMachineTable();
+        updateAdminKpiMetrics();
+
         showToast(`${m.name} Secondary Chiller Engaged: Temperature dropped to ${m.temp}°C`, 'success');
         playIndustrialTone('success');
+
+        fetch(`/api/machines/${m.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'online', temp: m.temp, vibr: 'Normal' })
+        }).catch(() => {});
       }
     });
   }
@@ -2974,13 +3014,38 @@ function initMachineInspector() {
       const m = state.machines.find(item => item.id === id);
       if (m) {
         m.load = 0;
-        m.temp = 32;
+        m.temp = 28;
         m.vibr = 'Off';
         m.status = 'offline';
+
+        const badgeEl = document.getElementById('inspect-status-badge');
+        if (badgeEl) {
+          badgeEl.className = 'status-badge offline';
+          badgeEl.textContent = '⏸ Emergency Stop (Isolated)';
+        }
+        const throttleSlider = document.getElementById('inspect-throttle-slider');
+        const throttleVal = document.getElementById('inspect-throttle-val');
+        if (throttleSlider) throttleSlider.value = 0;
+        if (throttleVal) throttleVal.textContent = '0%';
+
+        updateOpenMachineInspector(m);
         updateDigitalTwinDisplay();
-        showToast(`EMERGENCY STOP (E-STOP) EXECUTED ON ${m.name}`, 'danger');
+        syncFloorMapWithMachines();
+        syncMachineCardsWithMachines();
+        renderAdminMachineTable();
+        updateAdminKpiMetrics();
+
+        showToast(`⛔ EMERGENCY SAFE STOP (E-STOP) EXECUTED ON ${m.name.toUpperCase()}!`, 'danger');
         playIndustrialTone('alert');
-        speakAlert(`Emergency stop triggered on ${m.name}`);
+        speakAlert(`Emergency safe stop triggered on ${m.name}. Drive isolated.`);
+
+        // Sync with backend immediately to prevent polling overwrite
+        fetch(`/api/machines/${m.id}/estop`, { method: 'POST' }).catch(() => {});
+        fetch(`/api/machines/${m.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'offline', load: 0, temp: 28, vibr: 'Off' })
+        }).catch(() => {});
       }
     });
   }
