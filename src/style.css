@@ -4254,6 +4254,51 @@ body {
   .admin-kpi-grid { grid-template-columns: 1fr; }
 }
 
+/* Global Topbar Emergency Stop (E-STOP) Button */
+.global-estop-btn {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(185, 28, 28, 0.45) 100%) !important;
+  border: 1.5px solid #ef4444 !important;
+  color: #fee2e2 !important;
+  font-weight: 800 !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.35rem 0.85rem !important;
+  border-radius: 8px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35) !important;
+}
+
+.global-estop-btn:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.5) 0%, rgba(185, 28, 28, 0.7) 100%) !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) scale(1.02) !important;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.6) !important;
+}
+
+.global-estop-btn.estop-active {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+  color: #ffffff !important;
+  border-color: #fca5a5 !important;
+  animation: estopPulsate 1.2s infinite ease-in-out !important;
+}
+
+@keyframes estopPulsate {
+  0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 24px rgba(239, 68, 68, 0.9); transform: scale(1.03); }
+  100% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+}
+
+.status-dot.danger-pulse {
+  background: #ef4444 !important;
+  box-shadow: 0 0 12px #ef4444 !important;
+  animation: pulse-danger 1s infinite alternate !important;
+}
+
 
 
 
