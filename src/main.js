@@ -32,6 +32,19 @@ const state = {
     targetMachines: 8,
     totalWorkforce: 16
   },
+  incidentHistory: [3],
+  activeAnomaly: {
+    machineId: 3,
+    machineName: 'Machine 3',
+    machineType: 'Injection Molder',
+    bay: 'Bay 3 - Molding',
+    type: 'thermal',
+    title: 'Machine 3 Critical Overheating Alert (89°C)',
+    desc: 'Spindle thermal velocity predicts thermal trip in 4.5 minutes.',
+    targetTemp: 44,
+    targetLoad: 68
+  },
+  autoRotateIncidentTimer: null,
   predictions: [
     {
       id: 'pred-1',
@@ -99,30 +112,30 @@ const state = {
     },
     {
       id: 'rec-3',
-      title: 'Shift Batch #409 to Assembly Robot 4',
-      desc: 'Rebalances factory floor load away from strained Hydraulic Press 2.',
-      impact: '🌍 Prevents 8.4 kg CO₂ emission spike',
-      productionLoss: '-2.5% during staging transfer',
-      revenueLoss: '-$380 staging handling overhead',
+      title: 'Move Work to Robot 4',
+      desc: 'Shifts heavy work to cool robotic line to stop carbon and heat buildup.',
+      impact: '🌍 Prevents 8.4 kg CO₂ spike',
+      productionLoss: '-2.5% transfer delay',
+      revenueLoss: '-$380 transfer cost',
       workersNeeded: 2,
-      workerAction: 'Deploy 2 Material Logistics Handlers to re-route blank pallet feeds',
+      workerAction: '2 floor operators to route parts to Robot 4',
       workerCost: '$450 / shift',
-      damageAverted: '+$12,500 assembly stoppage averted',
+      damageAverted: '+$12,500 machine stoppage averted',
       netBenefit: '+$11,670 net savings',
       checked: true,
       executed: false
     },
     {
       id: 'rec-4',
-      title: 'Enable Dynamic Eco-Pulse Inverter Mode',
-      desc: 'Harmonizes motor voltage cycles to eliminate reactive power wastage.',
-      impact: '⚡ Cuts idle energy draw by 12%',
-      productionLoss: '-1.5% cadence recalibration',
-      revenueLoss: '-$160 micro-adjustment overhead',
+      title: 'Turn On Eco Power-Saving Mode',
+      desc: 'Optimizes motor power to stop wasting idle electricity.',
+      impact: '⚡ Cuts idle power draw by 12%',
+      productionLoss: '-1.5% tempo calibration',
+      revenueLoss: '-$160 calibration cost',
       workersNeeded: 1,
-      workerAction: 'Assign 1 Electrical Systems Specialist to monitor inverter power harmonics',
+      workerAction: '1 electrician to switch motors to eco mode',
       workerCost: '$250 / shift',
-      damageAverted: '+$6,400 reactive power penalty avoided',
+      damageAverted: '+$6,400 power penalty avoided',
       netBenefit: '+$5,990 net savings',
       checked: false,
       executed: false
@@ -209,13 +222,40 @@ const state = {
   fftAnimationId: null
 };
 
+// ==================== LOCAL PERSISTENCE HELPERS ====================
+const MACHINE_STORAGE_KEY = 'ecosync_factory_fleet_state_v1';
+
+function loadPersistedMachines() {
+  try {
+    const raw = localStorage.getItem(MACHINE_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length >= 5) {
+        state.machines = parsed;
+      }
+    }
+  } catch (e) {
+    console.warn('Unable to read machines from localStorage:', e);
+  }
+}
+
+function persistMachines() {
+  try {
+    localStorage.setItem(MACHINE_STORAGE_KEY, JSON.stringify(state.machines));
+  } catch (e) {
+    console.warn('Unable to save machines to localStorage:', e);
+  }
+}
+
 // ==================== INITIALIZATION ====================
 document.addEventListener('DOMContentLoaded', () => {
+  loadPersistedMachines();
   initLogin();
   initNavigation();
   initCharts();
   renderPredictions();
   renderRecommendations();
+  renderEffectPreview();
   renderAlerts();
   initActions();
   initManpowerModal();
@@ -227,6 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
   initSimulationStudio();
   initWorkOrders();
   initAdminFleet();
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+  updateDigitalTwinDisplay();
   startTelemetrySimulation();
   updateDate();
 });
@@ -314,6 +359,12 @@ function navigateToPage(targetPage) {
   if (targetPage === 'admin') {
     renderAdminMachineTable();
     updateAdminKpiMetrics();
+  }
+
+  if (targetPage === 'digital-twin') {
+    syncFloorMapWithMachines();
+    syncMachineCardsWithMachines();
+    updateDigitalTwinDisplay();
   }
 
   if (window.innerWidth <= 768 && sidebar) {
@@ -629,33 +680,198 @@ function renderPredictions() {
   }
 }
 
+// ==================== DYNAMIC INCIDENT ROTATION ENGINE ====================
+// Guarantees that every time an incident occurs or is triggered, a DIFFERENT machine is selected
+function triggerNextMachineIncident(forcedMachineId = null) {
+  const eligible = state.machines.filter(m => m.status !== 'offline');
+  if (eligible.length === 0) return null;
+
+  // Track incident history so we never repeat the same machine back-to-back
+  const lastId = state.incidentHistory && state.incidentHistory.length > 0 
+    ? state.incidentHistory[state.incidentHistory.length - 1] 
+    : null;
+    
+  let candidates = eligible.filter(m => m.id !== lastId);
+  if (candidates.length === 0) candidates = eligible;
+
+  let chosen = null;
+  if (forcedMachineId !== null) {
+    chosen = state.machines.find(m => m.id === forcedMachineId);
+  }
+  if (!chosen) {
+    const randIdx = Math.floor(Math.random() * candidates.length);
+    chosen = candidates[randIdx];
+  }
+
+  if (!state.incidentHistory) state.incidentHistory = [];
+  state.incidentHistory.push(chosen.id);
+  if (state.incidentHistory.length > 10) state.incidentHistory.shift();
+
+  // Reset other operational machines to safe nominal values so focus stays clear
+  state.machines.forEach(m => {
+    if (m.id !== chosen.id && m.status !== 'offline') {
+      m.temp = 40 + Math.floor(Math.random() * 4);
+      m.load = 62 + Math.floor(Math.random() * 6);
+      m.vibr = 'Normal';
+      m.status = 'online';
+    }
+  });
+
+  // Rotate between distinct industrial anomaly profiles
+  const profiles = ['thermal', 'vibration', 'hydraulic', 'stator'];
+  const profile = profiles[Math.floor(Math.random() * profiles.length)];
+
+  if (profile === 'thermal') {
+    chosen.temp = 88 + Math.floor(Math.random() * 5); // 88 - 92 °C
+    chosen.load = 96 + Math.floor(Math.random() * 4); // 96 - 99 %
+    chosen.vibr = 'Critical';
+    chosen.status = 'danger';
+    state.activeAnomaly = {
+      machineId: chosen.id,
+      machineName: chosen.name,
+      machineType: chosen.type,
+      bay: chosen.bay,
+      type: 'thermal',
+      title: `${chosen.name} Critical Overheating Alert (${chosen.temp}°C)`,
+      desc: `Rapid spindle heat velocity (+2.4°C/min) on ${chosen.type} predicts thermal coil trip within 4.5 minutes.`,
+      targetTemp: 44,
+      targetLoad: 68
+    };
+  } else if (profile === 'vibration') {
+    chosen.temp = 78 + Math.floor(Math.random() * 4);
+    chosen.load = 92 + Math.floor(Math.random() * 5);
+    chosen.vibr = 'High';
+    chosen.status = 'warning';
+    state.activeAnomaly = {
+      machineId: chosen.id,
+      machineName: chosen.name,
+      machineType: chosen.type,
+      bay: chosen.bay,
+      type: 'vibration',
+      title: `${chosen.name} 142 Hz Harmonic Flutter Anomaly`,
+      desc: `Resonant vibration harmonics on ${chosen.type}. Proportional valve micro-cavitation risk.`,
+      targetTemp: 42,
+      targetLoad: 72
+    };
+  } else if (profile === 'hydraulic') {
+    chosen.temp = 83 + Math.floor(Math.random() * 4);
+    chosen.load = 94 + Math.floor(Math.random() * 4);
+    chosen.vibr = 'High';
+    chosen.status = 'warning';
+    state.activeAnomaly = {
+      machineId: chosen.id,
+      machineName: chosen.name,
+      machineType: chosen.type,
+      bay: chosen.bay,
+      type: 'hydraulic',
+      title: `${chosen.name} Hydraulic Pressure Surge (240 bar)`,
+      desc: `Hydraulic pressure spike on ${chosen.type} exceeds 240 bar safety bypass threshold.`,
+      targetTemp: 45,
+      targetLoad: 70
+    };
+  } else {
+    chosen.temp = 86 + Math.floor(Math.random() * 4);
+    chosen.load = 97;
+    chosen.vibr = 'Critical';
+    chosen.status = 'danger';
+    state.activeAnomaly = {
+      machineId: chosen.id,
+      machineName: chosen.name,
+      machineType: chosen.type,
+      bay: chosen.bay,
+      type: 'stator',
+      title: `${chosen.name} Stator Coil Overcurrent Surge`,
+      desc: `Motor phase current imbalance on ${chosen.type}. Stator insulation breakdown threat.`,
+      targetTemp: 42,
+      targetLoad: 65
+    };
+  }
+
+  // Elevate telemetry power draw
+  state.telemetry.power = +(18.2 + Math.random() * 2).toFixed(1);
+  state.telemetry.carbon = +(state.telemetry.power * 0.82).toFixed(1);
+
+  // Add real-time intimation alert
+  state.alerts.unshift({
+    id: Date.now(),
+    type: chosen.status === 'danger' ? 'critical' : 'warning',
+    title: state.activeAnomaly.title,
+    msg: state.activeAnomaly.desc,
+    time: 'Just now'
+  });
+  if (state.alerts.length > 8) state.alerts = state.alerts.slice(0, 8);
+
+  // Re-synchronize display
+  persistMachines();
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+  updateDigitalTwinDisplay();
+  updateSituationalIntelligence();
+  renderAlerts();
+
+  showToast(`⚠️ Anomaly Rotated: ${chosen.name} (${chosen.type}) in ${chosen.bay} requires optimization review!`, 'warning');
+  playIndustrialTone('alert');
+  speakAlert(`Anomaly detected on ${chosen.name}. Effect preview and recommendations updated.`);
+
+  fetch('/api/simulate/next-incident', { method: 'POST' }).catch(() => {});
+
+  return chosen;
+}
+
+window.triggerNextMachineIncident = triggerNextMachineIncident;
+
 // ==================== SITUATION-AWARE INTELLIGENCE ENGINE ====================
 function computeSituationalRecommendations() {
-  const m3 = state.machines.find(m => m.id === 3) || {};
-  const m2 = state.machines.find(m => m.id === 2) || {};
+  // Dynamically detect which machine has an active hazard/strain
+  let pMachine = state.machines.find(m => m.status === 'danger' || m.temp > 72);
+  let sMachine = state.machines.find(m => m !== pMachine && (m.status === 'warning' || m.vibr === 'High' || m.vibr === 'Critical' || m.load >= 88));
+
+  if (!pMachine && state.activeAnomaly) {
+    pMachine = state.machines.find(m => m.id === state.activeAnomaly.machineId);
+  }
+  if (!pMachine && !sMachine) {
+    pMachine = state.machines.find(m => m.id === 3) || state.machines[0];
+  }
+
+  const pName = pMachine ? pMachine.name : 'Machine 3';
+  const pId = pMachine ? pMachine.id : 3;
+  const pType = pMachine ? pMachine.type : 'Injection Molder';
+  const pBay = pMachine ? pMachine.bay : `Bay ${pId}`;
+  const pTemp = pMachine ? pMachine.temp : 89;
+  const pLoad = pMachine ? pMachine.load : 98;
+
+  const sName = sMachine ? sMachine.name : (pId === 2 ? 'Machine 1' : 'Machine 2');
+  const sId = sMachine ? sMachine.id : (pId === 2 ? 1 : 2);
+  const sType = sMachine ? sMachine.type : 'Auxiliary Unit';
+  const sLoad = sMachine ? sMachine.load : 92;
+
   const t = state.telemetry;
   const manpower = state.manpower || { auxiliaryDeployed: 0 };
 
-  const isMitigated = (m3.temp <= 70 && m3.status === 'online' && m3.load <= 76);
-  const isOverheat = (!isMitigated) && (m3.temp > 72 || t.temp > 50);
+  const isMitigated = Boolean(pMachine && pMachine.temp <= 70 && pMachine.status === 'online' && pMachine.load <= 76);
+  const isOverheat = (!isMitigated) && ((pMachine && pMachine.temp > 70) || t.temp > 50);
   const isCarbonSpike = (t.carbon > 22.0 || t.co2 > 520 || t.power > 20.0);
-  const isM2Strain = (m2.vibr === 'High' || m2.vibr === 'Critical' || m2.load >= 88);
+  const isStrain = Boolean(sMachine && (sMachine.vibr === 'High' || sMachine.vibr === 'Critical' || sMachine.load >= 88));
   const isThrottledDeficit = isMitigated && (manpower.auxiliaryDeployed === 0);
-  const isNominal = !isOverheat && !isCarbonSpike && !isM2Strain;
+  const isNominal = !isOverheat && !isCarbonSpike && !isStrain;
 
   const recs = [];
 
-  // Situation 1: Critical Overheat
+  // Situation 1: Critical Overheat / Problem Machine
   if (isOverheat) {
     recs.push({
-      id: 'rec-throttle-m3',
-      title: `Throttle Machine-3 Speed by 25% (Target: 68°C)`,
-      desc: `Reduces mechanical friction and arrests stator coil thermal escalation currently at ${m3.temp}°C.`,
-      impact: '⚡ Halts thermal trip & saves 3.8 kWh',
+      id: `rec-throttle-${pId}`,
+      targetMachineId: pId,
+      targetMachineName: pName,
+      title: `Throttle ${pName} Speed by 25% (Target: 44°C)`,
+      desc: `Reduces mechanical friction and arrests thermal escalation on ${pName} (${pType} in ${pBay}) currently at ${pTemp}°C.`,
+      impact: `⚡ Halts ${pName} thermal trip & saves 3.8 kWh`,
+      beforeEffect: `${pName} at ${pTemp}°C / ${pLoad}% Load • Imminent Trip in 4.5 mins`,
+      afterEffect: `Cool to 44°C • Load to 68% • Stator Coil Protected`,
       productionLoss: '-18.4% throughput (~160 units/hr drop)',
       revenueLoss: '-$3,850 / shift deficit',
       workersNeeded: 4,
-      workerAction: 'Deploy 4 Auxiliary Technicians on Finishing Line to compensate throughput',
+      workerAction: `Deploy 4 Auxiliary Technicians on ${pBay} to compensate throughput`,
       workerCost: '$1,200 / shift',
       damageAverted: '+$45,000 catastrophic stator burnout averted',
       netBenefit: '+$39,950 net shift protection',
@@ -663,10 +879,14 @@ function computeSituationalRecommendations() {
       executed: false
     });
     recs.push({
-      id: 'rec-chiller-b',
-      title: 'Engage Secondary Glycol Chiller Unit B (Loop 3)',
-      desc: 'Forces active 8°C heat exchange fluid through hydraulic manifolds to purge core heat.',
+      id: `rec-chiller-${pId}`,
+      targetMachineId: pId,
+      targetMachineName: pName,
+      title: `Engage Secondary Glycol Chiller for ${pName}`,
+      desc: `Forces active 8°C heat exchange fluid through ${pType} manifolds to purge core heat.`,
       impact: '❄ Drops operating temp by ~14°C within 5 mins',
+      beforeEffect: `Heat escalating at +2.4°C/min on ${pName} core`,
+      afterEffect: `Secondary Loop 3 fluid cools core by -14°C rapidly`,
       productionLoss: '-3.5% auxiliary thermal draw',
       revenueLoss: '-$480 / shift coolant & power cost',
       workersNeeded: 1,
@@ -679,9 +899,13 @@ function computeSituationalRecommendations() {
     });
     recs.push({
       id: 'rec-manpower-overheat',
-      title: 'Deploy Auxiliary Floor Technicians (+4 on Line 4)',
-      desc: 'Offsets the -18.4% throughput loss from Machine-3 throttling to safeguard shift revenue ($24,000 target).',
+      targetMachineId: pId,
+      targetMachineName: pName,
+      title: `Deploy Auxiliary Floor Technicians (+4 on ${pBay})`,
+      desc: `Offsets the -18.4% throughput loss from ${pName} throttling to safeguard shift revenue ($24,000 target).`,
       impact: '👥 Restores line throughput to 100%',
+      beforeEffect: `-18.4% throughput deficit ➔ -$3,850 shift revenue deficit`,
+      afterEffect: `+4 Technicians deployed ➔ 0% Deficit ($24,000 quota secured)`,
       productionLoss: '0.0% (Compensates for -18.4% deficit)',
       revenueLoss: '$0 (Secures $24,000 daily quota)',
       workersNeeded: 4,
@@ -694,10 +918,14 @@ function computeSituationalRecommendations() {
     });
   } else if (isMitigated) {
     recs.push({
-      id: 'rec-throttle-m3',
-      title: 'Machine-3 Safety Throttle Active (Load: 72%)',
-      desc: 'Operating load held at -25% to sustain thermal safety margin at 68°C.',
+      id: `rec-throttle-${pId}`,
+      targetMachineId: pId,
+      targetMachineName: pName,
+      title: `${pName} Safety Throttle Active (Load: 68%)`,
+      desc: `Operating load held at safe cadence to sustain thermal safety margin at ${pTemp}°C.`,
       impact: '✔ Thermal trip averted & coil preserved',
+      beforeEffect: `${pName} stabilized at ${pTemp}°C`,
+      afterEffect: `Safe thermal envelope maintained`,
       productionLoss: '-18.4% without auxiliary workforce',
       revenueLoss: '-$3,850 if uncompensated',
       workersNeeded: 4,
@@ -710,51 +938,59 @@ function computeSituationalRecommendations() {
     });
   }
 
-  // Situation 2: Carbon Surge / High Power Draw
+  // Situation 2: Carbon Surge / High Power Draw (Brief & Simple)
   if (isCarbonSpike) {
     recs.push({
       id: 'rec-scrubber',
-      title: 'Engage Flue Gas Scrubber & Activated Carbon Adsorber',
-      desc: 'Diverts stack exhaust through catalytic calcium hydroxide filtration bed.',
-      impact: '🌍 Lowers direct stack CO₂ output by 35%',
-      productionLoss: '-4.2% conveyor parasitic load',
-      revenueLoss: '-$620 / shift reagent consumption',
-      workersNeeded: 2,
-      workerAction: 'Deploy 2 Environmental Chemical Technicians for catalytic cartridge replenishment',
-      workerCost: '$600 / shift',
-      damageAverted: '+$14,500 statutory emissions fine & stop-work penalty',
-      netBenefit: '+$13,280 net savings',
+      title: 'Turn On Carbon Scrubber Filter',
+      desc: 'Filters stack exhaust to immediately cut factory smoke and emissions.',
+      impact: '🌍 Cuts carbon emissions by 35%',
+      beforeEffect: `Emissions at ${t.carbon} kg CO₂ / ${t.power} kWh • Daily Cap Hazard`,
+      afterEffect: `Direct stack CO₂ cut by 35% (-8.4 kg) • Clean air exhaust`,
+      productionLoss: '-2.0% exhaust fan draw',
+      revenueLoss: '-$200 / shift filter cost',
+      workersNeeded: 1,
+      workerAction: 'Assign 1 operator to inspect scrubber filter cartridge',
+      workerCost: '$250 / shift',
+      damageAverted: '+$14,500 pollution fine avoided',
+      netBenefit: '+$14,050 clean savings',
       checked: true,
       executed: false
     });
     recs.push({
       id: 'rec-bess-peak',
-      title: 'Activate Clean Battery Storage (BESS) Peak-Shaving',
-      desc: `Supplies ${Math.min(9.5, +(t.power * 0.35).toFixed(1))} kWh from clean stored solar reserves to bypass grid peak tariffs.`,
-      impact: '⚡ Averts $420 peak-demand utility surcharge',
-      productionLoss: '0.0% throughput impact',
-      revenueLoss: '-$180 battery cycle amortization',
+      title: 'Switch to Clean Solar Battery Power',
+      desc: `Draws ${Math.min(9.5, +(t.power * 0.35).toFixed(1))} kWh of clean solar power to bypass dirty grid energy.`,
+      impact: '⚡ Saves $420 in peak power surge tariffs',
+      beforeEffect: `Grid peak tariff costing +$420 / hour`,
+      afterEffect: `Power shifted to clean stored solar • $0 grid surcharge`,
+      productionLoss: '0% impact on production',
+      revenueLoss: '-$180 battery maintenance',
       workersNeeded: 1,
-      workerAction: 'Assign 1 Electrical Systems Specialist to oversee inverter synchronization',
+      workerAction: 'Assign 1 technician to switch power feed to solar battery',
       workerCost: '$280 / shift',
-      damageAverted: '+$4,800 peak utility surge tariff avoided',
+      damageAverted: '+$4,800 grid surge penalty avoided',
       netBenefit: '+$4,340 net cost reduction',
       checked: true,
       executed: false
     });
   }
 
-  // Situation 3: Machine 2 Mechanical / Hydraulic Strain
-  if (isM2Strain) {
+  // Situation 3: Mechanical Strain / Vibration
+  if (isStrain) {
     recs.push({
-      id: 'rec-hydraulic-damp',
-      title: 'Relieve Hydraulic Pressure to 80% & Close Bypass Valve',
-      desc: 'Dampens 142 Hz resonant harmonic oscillation and relieves valve manifold stress.',
-      impact: '🛡 Prevents catastrophic $18,000 pump rupture',
+      id: `rec-damp-${sId}`,
+      targetMachineId: sId,
+      targetMachineName: sName,
+      title: `Relieve Mechanical Stress on ${sName} (Cadence: 75%)`,
+      desc: `Dampens resonant harmonic oscillation and relieves valve manifold stress on ${sName} (${sType}).`,
+      impact: `🛡 Prevents catastrophic ${sName} pump rupture`,
+      beforeEffect: `${sName} fluttering at 142 Hz (Load: ${sLoad}%)`,
+      afterEffect: `Vibration dampened to Normal • Cadence to 75%`,
       productionLoss: '-8.0% stamping cycle tempo',
       revenueLoss: '-$1,450 / shift throughput delay',
       workersNeeded: 2,
-      workerAction: 'Assign 2 Tooling Technicians to oversee hydraulic pressure calibration',
+      workerAction: `Assign 2 Tooling Technicians to oversee ${sName} calibration`,
       workerCost: '$550 / shift',
       damageAverted: '+$28,000 cylinder blow-out & die cracking averted',
       netBenefit: '+$26,000 net protection',
@@ -762,10 +998,14 @@ function computeSituationalRecommendations() {
       executed: false
     });
     recs.push({
-      id: 'rec-balance-m2',
-      title: 'Shift Batch #409 Workload to Assembly Robot 4',
-      desc: 'Diverts heavy stamping queue to balanced robotic cell to unload Hydraulic Press 2.',
+      id: `rec-balance-${sId}`,
+      targetMachineId: sId,
+      targetMachineName: sName,
+      title: `Shift Workload from ${sName} to Alternate Line Cells`,
+      desc: `Diverts heavy processing queue to balanced automated cells to unload ${sName}.`,
       impact: '⚖ Balances line load & reduces cycle strain by 32%',
+      beforeEffect: `${sName} overloaded at ${sLoad}% load queue`,
+      afterEffect: `Rebalanced to 68% • Workload shared seamlessly`,
       productionLoss: '-2.5% during staging transfer',
       revenueLoss: '-$380 staging handling',
       workersNeeded: 2,
@@ -782,9 +1022,11 @@ function computeSituationalRecommendations() {
   if (isThrottledDeficit) {
     recs.push({
       id: 'rec-manpower-quota',
-      title: 'Authorize Floor Technicians (+4) for Manual Line Finishing',
-      desc: 'Compensates for the 18.4% capacity deficit caused by Machine-3 thermal protection.',
+      title: `Authorize Floor Technicians (+4) for ${pName} Line Buffer`,
+      desc: `Compensates for the 18.4% capacity deficit caused by ${pName} thermal protection.`,
       impact: '💰 Fully preserves $24,000 daily shift revenue quota',
+      beforeEffect: `Capacity deficit of -18.4% ($3,850 shift risk)`,
+      afterEffect: `100% capacity restored ($24k revenue secured)`,
       productionLoss: '0.0% (Deficit fully mitigated)',
       revenueLoss: '$0 deficit ($24k quota achieved)',
       workersNeeded: 4,
@@ -792,21 +1034,6 @@ function computeSituationalRecommendations() {
       workerCost: '$1,200 / shift',
       damageAverted: '+$24,000 shift revenue preserved',
       netBenefit: '+$22,800 net revenue',
-      checked: true,
-      executed: false
-    });
-    recs.push({
-      id: 'rec-sync-conveyor',
-      title: 'Re-index Buffer Conveyor Feed Velocity by -15%',
-      desc: 'Synchronizes parts arrival rate with throttled injection molding cycle.',
-      impact: '📦 Eliminates conveyor parts jamming & 0% scrap rate',
-      productionLoss: '-1.5% feed index delay',
-      revenueLoss: '-$180 indexing friction',
-      workersNeeded: 1,
-      workerAction: 'Assign 1 Conveyor Specialist to calibrate optical line sensors',
-      workerCost: '$220 / shift',
-      damageAverted: '+$7,800 parts jamming damage averted',
-      netBenefit: '+$7,400 net protection',
       checked: true,
       executed: false
     });
@@ -819,6 +1046,8 @@ function computeSituationalRecommendations() {
       title: 'Initiate Zero-Drift Calibration on Wireless ESP32 Cluster',
       desc: 'Auto-calibrates MQ-135 electrochemical sensor and DHT22 digital thermal probe.',
       impact: '🎯 Calibrates sensor drift to ±0.2°C accuracy',
+      beforeEffect: `Baseline calibration interval reached (48h elapsed)`,
+      afterEffect: `Drift zeroed to ±0.2°C • High IoT telemetry fidelity`,
       productionLoss: '0.0% (Zero downtime calibration)',
       revenueLoss: '$0 / shift',
       workersNeeded: 1,
@@ -834,6 +1063,8 @@ function computeSituationalRecommendations() {
       title: 'Bank Clean Energy Surplus (4.2 kg CO₂) to Corporate ESG Ledger',
       desc: 'Audit logs verified 4.2 kg CO₂ emission surplus under statutory compliance cap.',
       impact: '🌿 Validates AAA Corporate ESG Sustainability Rating',
+      beforeEffect: `Verified 4.2 kg CO₂ emission headroom available`,
+      afterEffect: `Cryptographically signed ESG green certificate logged`,
       productionLoss: '0.0% production impact',
       revenueLoss: '$0 / shift',
       workersNeeded: 1,
@@ -842,21 +1073,6 @@ function computeSituationalRecommendations() {
       damageAverted: '+$3,500 carbon tax audit penalty avoided',
       netBenefit: '+$3,300 corporate credit',
       checked: true,
-      executed: false
-    });
-    recs.push({
-      id: 'rec-robot-traj',
-      title: 'Enable High-Velocity Trajectory on Assembly Robot 4',
-      desc: 'Thermal headroom allows +3.5% faster pick-and-place indexing without thermal penalty.',
-      impact: '🚀 Yields +28 units/hour throughput boost',
-      productionLoss: '+3.5% Throughput Gain',
-      revenueLoss: '+$920 / shift revenue bonus',
-      workersNeeded: 1,
-      workerAction: '1 Robotics Engineer on standby for trajectory oversight',
-      workerCost: '$350 / shift',
-      damageAverted: '$0 (Operating in safe envelope)',
-      netBenefit: '+$570 net profit boost',
-      checked: false,
       executed: false
     });
   }
@@ -879,24 +1095,25 @@ function updateSituationalIntelligence() {
     return r;
   });
   renderRecommendations();
+  renderEffectPreview();
 }
 
 // ==================== LIVE DYNAMIC INTIMATIONS ENGINE ====================
 let lastIntimationState = '';
 function updateLiveIntimations() {
-  const m3 = state.machines.find(m => m.id === 3) || {};
-  const m2 = state.machines.find(m => m.id === 2) || {};
+  const pMachine = state.machines.find(m => m.status === 'danger' || m.temp > 72) || state.machines[0];
+  const sMachine = state.machines.find(m => m !== pMachine && (m.status === 'warning' || m.vibr === 'High'));
   const t = state.telemetry;
-  const isMitigated = (m3.temp <= 70 && m3.status === 'online' && m3.load <= 76);
+  const isMitigated = Boolean(pMachine && pMachine.temp <= 70 && pMachine.status === 'online');
   const now = 'Just now';
 
   let currentKey = '';
-  if (!isMitigated && m3.temp > 75) {
-    currentKey = `overheat-${Math.floor(m3.temp / 5)}`;
+  if (!isMitigated && pMachine.temp > 75) {
+    currentKey = `overheat-${pMachine.id}-${Math.floor(pMachine.temp / 5)}`;
   } else if (t.co2 > 520 || t.carbon > 22) {
     currentKey = `carbon-${Math.floor(t.co2 / 50)}`;
-  } else if (m2.vibr === 'High') {
-    currentKey = 'vibr-high';
+  } else if (sMachine && sMachine.vibr === 'High') {
+    currentKey = `vibr-${sMachine.id}`;
   } else if (isMitigated && state.manpower?.auxiliaryDeployed > 0) {
     currentKey = 'manpower-active';
   } else if (isMitigated) {
@@ -908,12 +1125,12 @@ function updateLiveIntimations() {
   if (currentKey !== lastIntimationState) {
     lastIntimationState = currentKey;
 
-    if (!isMitigated && m3.temp > 75) {
+    if (!isMitigated && pMachine.temp > 75) {
       state.alerts.unshift({
         id: Date.now(),
         type: 'critical',
-        title: `Machine-3 Thermal Surge Intimation (${m3.temp}°C)`,
-        msg: `Thermal gradient is critical (+2.4°C/min). Spindle heat dissipation exceeds safety envelope. AI throttle recommended immediately.`,
+        title: `${pMachine.name} Thermal Surge Intimation (${pMachine.temp}°C)`,
+        msg: `Thermal velocity (+2.4°C/min) on ${pMachine.type}. Friction dissipation exceeds safety envelope. AI throttle recommended immediately.`,
         time: now
       });
     } else if (t.co2 > 520 || t.carbon > 22) {
@@ -924,12 +1141,12 @@ function updateLiveIntimations() {
         msg: `Emissions climbing (${t.carbon} kg CO₂ / ${t.power} kWh). Approaching facility daily cap of ${t.budget} kg CO₂.`,
         time: now
       });
-    } else if (m2.vibr === 'High') {
+    } else if (sMachine && sMachine.vibr === 'High') {
       state.alerts.unshift({
         id: Date.now(),
         type: 'warning',
-        title: 'Machine-2 Harmonic Cavitation Intimation',
-        msg: 'Acoustic FFT registered 142 Hz hydraulic vibration spike. Valve fatigue and micro-cavitation risk.',
+        title: `${sMachine.name} Acoustic Cavitation Intimation`,
+        msg: `Acoustic FFT registered 142 Hz harmonic vibration spike on ${sMachine.type}. Valve fatigue and cavitation risk.`,
         time: now
       });
     } else if (isMitigated && state.manpower?.auxiliaryDeployed > 0) {
@@ -937,7 +1154,7 @@ function updateLiveIntimations() {
         id: Date.now(),
         type: 'info',
         title: 'Workforce Quota Intimation',
-        msg: '+4 Technicians deployed on Line 4. Capacity deficit compensated and $24,000 revenue quota secured.',
+        msg: `+4 Technicians deployed on ${pMachine.bay}. Capacity deficit compensated and $24,000 revenue quota secured.`,
         time: now
       });
     } else if (isMitigated) {
@@ -945,7 +1162,7 @@ function updateLiveIntimations() {
         id: Date.now(),
         type: 'warning',
         title: 'Production Deficit Intimation (-18.4%)',
-        msg: 'Machine-3 throttled for thermal safety. Auxiliary manpower required to prevent -$3,850/shift revenue loss.',
+        msg: `${pMachine.name} throttled for thermal safety. Auxiliary manpower required to prevent -$3,850/shift revenue loss.`,
         time: now
       });
     } else if (currentKey === 'nominal') {
@@ -965,10 +1182,125 @@ function updateLiveIntimations() {
   }
 }
 
+// ==================== UPFRONT EFFECT PREVIEW (SHOWN IN FRONT) ====================
+function renderEffectPreview() {
+  const container = document.getElementById('rec-effect-preview');
+  if (!container) return;
+
+  const pMachine = state.machines.find(m => m.status === 'danger' || m.temp > 70) 
+    || state.machines.find(m => m.status === 'warning') 
+    || state.machines[0];
+
+  const allExecuted = state.recommendations.length > 0 && state.recommendations.every(r => r.executed);
+
+  if (allExecuted) {
+    container.className = 'rec-effect-preview-card executed';
+    container.innerHTML = `
+      <div class="preview-header">
+        <div class="preview-header-title">
+          <span>✅ LIVE EFFECT APPLIED TO FACTORY FLOOR</span>
+        </div>
+        <span class="preview-badge-status applied">Optimizations Active ✔</span>
+      </div>
+      <div class="preview-comparison-grid">
+        <div class="preview-col col-after" style="grid-column: 1 / -1;">
+          <div class="col-tag">🟢 Current Factory Status (Optimized & Protected)</div>
+          <div class="preview-metric-row">
+            <span class="pm-label">Target Machinery:</span>
+            <span class="pm-val success">${pMachine.name} (${pMachine.type} in ${pMachine.bay})</span>
+          </div>
+          <div class="preview-metric-row">
+            <span class="pm-label">Operating Temperature:</span>
+            <span class="pm-val success">${pMachine.temp}°C (Cooled & Stabilized in Safe Zone)</span>
+          </div>
+          <div class="preview-metric-row">
+            <span class="pm-label">Operating Load & Cadence:</span>
+            <span class="pm-val success">${pMachine.load}% (Thermal Margin Sustained)</span>
+          </div>
+          <div class="preview-metric-row">
+            <span class="pm-label">Workforce Deficit Offset:</span>
+            <span class="pm-val success">100% Fulfilled ($24,000 Daily Quota Preserved via Auxiliary Team)</span>
+          </div>
+          <div class="preview-metric-row">
+            <span class="pm-label">Catastrophic Damage Averted:</span>
+            <span class="pm-val success">+$45,000 Equipment Failure Prevented</span>
+          </div>
+          <div class="preview-metric-row">
+            <span class="pm-label">Clean Energy Draw:</span>
+            <span class="pm-val success">⚡ Power reduced to ${state.telemetry.power} kWh • ESG Compliant</span>
+          </div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  container.className = 'rec-effect-preview-card';
+  container.innerHTML = `
+    <div class="preview-header">
+      <div class="preview-header-title">
+        <span>🔍 LIVE EFFECT PREVIEW (Review Impact Before Proceeding)</span>
+      </div>
+      <span class="preview-badge-status pending">Review Before Proceeding</span>
+    </div>
+    <div class="preview-comparison-grid">
+      <div class="preview-col col-before">
+        <div class="col-tag">🔴 Current Live State (Before Proceeding)</div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Problem Machine:</span>
+          <span class="pm-val danger">${pMachine.name} (${pMachine.type})</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Live Core Temp:</span>
+          <span class="pm-val danger">${pMachine.temp}°C (Trip Hazard in 4.5 mins)</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Operating Load:</span>
+          <span class="pm-val danger">${pMachine.load}% (Severe Thermal Friction)</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Uncompensated Shift Deficit:</span>
+          <span class="pm-val danger">-$3,850 / shift if unaddressed</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Imminent Component Burnout:</span>
+          <span class="pm-val danger">+$45,000 Stator Replacement Cost</span>
+        </div>
+      </div>
+
+      <div class="preview-col col-after">
+        <div class="col-tag">🟢 Predicted Effect (When You Click Proceed)</div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Machine Cooldown:</span>
+          <span class="pm-val success">${pMachine.name} Drops to 44°C (Safe)</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Safe Load Cadence:</span>
+          <span class="pm-val success">68% Load (Tripping Prevented)</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Clean Power Optimization:</span>
+          <span class="pm-val success">⚡ Power drops to 11.5 kWh (-37%)</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Workforce Compensation:</span>
+          <span class="pm-val success">+4 Auxiliary Workers ➔ $0 Deficit</span>
+        </div>
+        <div class="preview-metric-row">
+          <span class="pm-label">Net Economic Protection:</span>
+          <span class="pm-val success">+${'$'}39,950 Net Company Value</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 // ==================== RENDER RECOMMENDATIONS ====================
 function renderRecommendations() {
   const container = document.getElementById('ai-recommendations');
   if (!container) return;
+
+  renderEffectPreview(); // Keep the upfront preview synchronized
 
   container.innerHTML = state.recommendations.map(r => `
     <div class="rec-item ${r.executed ? 'executed' : ''}" id="rec-card-${r.id}">
@@ -983,6 +1315,16 @@ function renderRecommendations() {
         </div>
         <div class="rec-desc">${r.desc}</div>
         <div class="rec-impact">${r.impact}</div>
+
+        <!-- Effect Shown In Front Before Clicking Proceed -->
+        <div class="rec-effect-inline-row">
+          <div class="rec-effect-inline-label">
+            <span>⚡ Predicted Effect:</span>
+          </div>
+          <div class="rec-effect-inline-text">
+            ${r.afterEffect || 'Cooldown to 44°C • Deficit Compensated • Stator Protected'}
+          </div>
+        </div>
 
         <!-- Economic & Workforce Loss Compensation Matrix -->
         <div class="rec-economic-matrix">
@@ -1014,14 +1356,19 @@ function renderRecommendations() {
           </div>
         </div>
 
-        ${r.workersNeeded && !r.executed ? `
-          <div class="rec-worker-action-bar">
-            <button class="btn-quick-worker" onclick="window.quickDeployWorkerForRec('${r.id}')">
-              <span>👥 Authorize & Deploy +${r.workersNeeded} Workers Now</span>
+        ${!r.executed ? `
+          <div class="rec-proceed-action-row">
+            <button class="btn-proceed-single" onclick="window.proceedWithSingleRecommendation('${r.id}')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Proceed With This Action</span>
             </button>
-            <span class="worker-plan-hint">Auto-balances Line 4 buffer queue to sustain shift revenue</span>
+            <span class="worker-plan-hint">Review effect above before proceeding</span>
           </div>
-        ` : ''}
+        ` : `
+          <div class="rec-proceed-action-row">
+            <span class="rec-badge-tag executed-tag">✅ Live Effect Successfully Applied to Floor</span>
+          </div>
+        `}
       </div>
     </div>
   `).join('');
@@ -1033,6 +1380,53 @@ function renderRecommendations() {
     });
   });
 }
+
+// Global helper for single recommendation proceed
+window.proceedWithSingleRecommendation = function(recId) {
+  const rec = state.recommendations.find(r => r.id === recId);
+  if (!rec) return;
+
+  rec.executed = true;
+  rec.checked = true;
+
+  // Stabilize the specific target machine
+  let target = null;
+  if (rec.targetMachineId) {
+    target = state.machines.find(m => m.id === rec.targetMachineId);
+  }
+  if (!target) {
+    target = state.machines.find(m => m.status === 'danger' || m.status === 'warning' || m.temp > 70) || state.machines[0];
+  }
+
+  if (target) {
+    target.temp = 42;
+    target.load = 65;
+    target.vibr = 'Normal';
+    target.status = 'online';
+  }
+
+  if (rec.workersNeeded) {
+    deployAuxiliaryManpower();
+  }
+
+  // Update telemetry
+  state.telemetry.power = Math.max(11.5, +(state.telemetry.power - 3.2).toFixed(1));
+  state.telemetry.carbon = +(state.telemetry.power * 0.82).toFixed(1);
+  state.telemetry.remaining = +(state.telemetry.budget - state.telemetry.carbon).toFixed(1);
+
+  renderRecommendations();
+  renderEffectPreview();
+  updateDigitalTwinDisplay();
+  updateTelemetryDisplay();
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+
+  showToast(`✔ Proceeded with ${rec.title}! ${target ? target.name : 'Machinery'} stabilized at 42°C`, 'success');
+  playIndustrialTone('success');
+  speakAlert(`Optimization proceeded for ${target ? target.name : 'machine'}.`);
+
+  persistMachines();
+};
 
 // Global helper for inline quick-deploy worker button inside recommendations
 window.quickDeployWorkerForRec = function(recId) {
@@ -1068,6 +1462,9 @@ function renderAlerts(filter = 'all') {
       </div>
       <div class="alert-right">
         <span class="alert-time">${a.time}</span>
+        ${(a.type === 'critical' || a.type === 'warning') ? `
+          <button class="alert-resolve-btn" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border-color: rgba(0, 240, 255, 0.35);" onclick="window.openWorkOrderModal && window.openWorkOrderModal()">📋 WO</button>
+        ` : ''}
         <button class="alert-resolve-btn" data-id="${a.id}">Resolve</button>
       </div>
     </div>
@@ -1092,13 +1489,21 @@ function renderAlerts(filter = 'all') {
   });
 }
 
-// ==================== INTERACTIVE ACTIONS ====================
+// ==================== PROCEED MECHANISM (INTERACTIVE ACTIONS) ====================
 function executeApproveAllRecommendations() {
+  const proceedBtn = document.getElementById('approve-all-btn');
+  const btnText = document.getElementById('proceed-btn-text');
+  if (proceedBtn) proceedBtn.classList.add('executing');
+  if (btnText) btnText.textContent = 'Applying Optimizations to Factory Floor...';
+
   showLoading(true);
+
   return new Promise((resolve) => {
     setTimeout(() => {
       showLoading(false);
-      
+      if (proceedBtn) proceedBtn.classList.remove('executing');
+      if (btnText) btnText.textContent = 'Proceed With Approved Optimizations';
+
       const executedIds = [];
       state.recommendations.forEach(r => {
         if (r.checked) {
@@ -1106,76 +1511,60 @@ function executeApproveAllRecommendations() {
           executedIds.push(r.id);
         }
       });
+
+      // Stabilize any machine currently in danger or warning
+      const stabilized = [];
+      state.machines.forEach(m => {
+        if (m.status === 'danger' || m.status === 'warning' || m.temp > 65 || m.load > 85) {
+          m.temp = 42;
+          m.load = 65;
+          m.vibr = 'Normal';
+          m.status = 'online';
+          stabilized.push(m.name);
+        }
+      });
+
+      // Deploy auxiliary manpower to offset throughput deficit
+      deployAuxiliaryManpower();
+
+      // Lower power draw and emissions
+      state.telemetry.power = 11.5;
+      state.telemetry.carbon = +(11.5 * 0.82).toFixed(1);
+      state.telemetry.remaining = +(state.telemetry.budget - state.telemetry.carbon).toFixed(1);
+
+      // Re-render recommendations & effect preview
       renderRecommendations();
-
-      const m3 = state.machines.find(m => m.id === 3);
-      const m2 = state.machines.find(m => m.id === 2);
-
-      let toastMsg = 'AI Optimizations Executed!';
-      let needsManpowerPrompt = false;
-
-      // 1. Thermal throttle & cooling
-      if (executedIds.some(id => id.includes('throttle') || id.includes('chiller') || id.includes('cool'))) {
-        if (m3) {
-          m3.temp = 68;
-          m3.load = 74;
-          m3.vibr = 'Normal';
-          m3.status = 'online';
-        }
-        toastMsg = 'Machine-3 throttled & cooled to 68°C.';
-        if (!state.manpower.auxiliaryDeployed) {
-          needsManpowerPrompt = true;
-        }
-      }
-
-      // 2. Carbon scrubber & BESS peak-shaving
-      if (executedIds.some(id => id.includes('scrubber') || id.includes('bess') || id.includes('peak'))) {
-        state.telemetry.power = Math.max(11.5, +(state.telemetry.power * 0.72).toFixed(1));
-        state.telemetry.co2 = Math.min(395, state.telemetry.co2 - 45);
-        state.telemetry.carbon = +(state.telemetry.power * 0.82).toFixed(1);
-        state.telemetry.remaining = +(state.telemetry.budget - state.telemetry.carbon).toFixed(1);
-        toastMsg = 'Flue gas scrubber active & clean battery peak-shaving engaged.';
-      }
-
-      // 3. Hydraulic vibration relief
-      if (executedIds.some(id => id.includes('hydraulic') || id.includes('balance') || id.includes('batch'))) {
-        if (m2) {
-          m2.load = 78;
-          m2.vibr = 'Normal';
-          m2.status = 'online';
-        }
-        const m4 = state.machines.find(m => m.id === 4);
-        if (m4) {
-          m4.load = 68;
-        }
-      }
-
-      // 4. Manpower quota recommendation
-      if (executedIds.some(id => id.includes('manpower'))) {
-        deployAuxiliaryManpower();
-        needsManpowerPrompt = false;
-      }
-
+      renderEffectPreview();
       updateDigitalTwinDisplay();
       updateTelemetryDisplay();
+      renderAdminMachineTable();
+      updateAdminKpiMetrics();
 
-      // Refresh situational recommendations for next operational stage
-      updateSituationalIntelligence();
-      updateLiveIntimations();
+      const machineList = stabilized.join(', ') || 'All machinery';
+      showToast(`✔ Optimizations Executed: ${machineList} cooled & stabilized. Loss fully compensated!`, 'success');
+      playIndustrialTone('success');
+      speakAlert(`AI Optimizations proceeded. Machinery cooled and stabilized.`);
 
-      showToast(toastMsg, 'success');
+      // Persist state
+      persistMachines();
+
+      fetch('/api/approve-actions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approved_actions: executedIds })
+      }).catch(() => {});
+
       resolve();
 
-      if (needsManpowerPrompt) {
-        setTimeout(() => {
-          showManpowerLossModal({
-            deficit: '-18.4%',
-            revenueLoss: '-$3,850',
-            avertedDamage: '+$45,000'
-          });
-        }, 850);
-      }
-    }, 700);
+      // Automatically rotate to a DIFFERENT machine with a new problem after 9 seconds of stable operation!
+      if (state.autoRotateIncidentTimer) clearTimeout(state.autoRotateIncidentTimer);
+      state.autoRotateIncidentTimer = setTimeout(() => {
+        if (state.isLoggedIn && !state.isPlantEStopped) {
+          triggerNextMachineIncident();
+        }
+      }, 9000);
+
+    }, 650);
   });
 }
 
@@ -1246,6 +1635,14 @@ function initManpowerModal() {
 }
 
 function initActions() {
+  // Rotate to a different machine problem trigger
+  const nextIncidentBtn = document.getElementById('btn-next-incident');
+  if (nextIncidentBtn) {
+    nextIncidentBtn.addEventListener('click', () => {
+      triggerNextMachineIncident();
+    });
+  }
+
   // Approve all AI recommendations
   const approveBtn = document.getElementById('approve-all-btn');
   if (approveBtn) {
@@ -1891,8 +2288,15 @@ function applyTelemetry(data) {
   if (data.humidity) state.telemetry.humidity = data.humidity;
   if (data.power) state.telemetry.power = data.power;
   if (data.carbon) state.telemetry.carbon = data.carbon;
-  if (data.machines) {
-    state.machines = data.machines;
+  if (data.machines && Array.isArray(data.machines)) {
+    data.machines.forEach(bm => {
+      const local = state.machines.find(lm => lm.id === bm.id);
+      if (local) {
+        Object.assign(local, bm);
+      } else {
+        state.machines.push(bm);
+      }
+    });
     updateDigitalTwinDisplay();
   }
   if (data.microgrid) {
@@ -1910,6 +2314,7 @@ function applyTelemetry(data) {
   if (data.recommendations) {
     state.recommendations = data.recommendations;
     renderRecommendations();
+    renderEffectPreview();
   } else {
     updateSituationalIntelligence();
   }
@@ -1989,6 +2394,9 @@ function pushChartData() {
 }
 
 function updateDigitalTwinDisplay() {
+  syncFloorMapWithMachines();
+  syncMachineCardsWithMachines();
+
   state.machines.forEach(m => {
     // 1. Traditional machine card
     const el = document.getElementById(`machine-${m.id}`);
@@ -3566,13 +3974,157 @@ function applySimulationToLive() {
 }
 
 // ==================== 6. MAINTENANCE WORK ORDER & DISPATCH SYSTEM ====================
+const WORK_ORDER_STORAGE_KEY = 'ecosync_factory_work_orders_v1';
+
+function savePersistedWorkOrders() {
+  try {
+    localStorage.setItem(WORK_ORDER_STORAGE_KEY, JSON.stringify(state.workOrders));
+  } catch (e) {}
+}
+
+function loadPersistedWorkOrders() {
+  try {
+    const raw = localStorage.getItem(WORK_ORDER_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        state.workOrders = parsed;
+      }
+    }
+  } catch (e) {}
+}
+
+function getActiveIncidentOrProblemMachineId() {
+  if (state.activeAnomaly && state.activeAnomaly.machineId) {
+    return state.activeAnomaly.machineId;
+  }
+  const problem = state.machines.find(m => m.status === 'danger' || m.status === 'warning' || m.temp > 65);
+  if (problem) return problem.id;
+  return state.machines[0]?.id || 1;
+}
+
+function updateWorkOrderFormForMachine(machineId) {
+  const m = state.machines.find(item => item.id === machineId) || state.machines[0];
+  if (!m) return;
+
+  const banner = document.getElementById('wo-machine-live-banner');
+  if (banner) {
+    const isCritical = m.status === 'danger' || m.temp > 80;
+    const isWarning = m.status === 'warning' || m.vibr === 'High' || m.vibr === 'Critical';
+    const statusClass = isCritical ? 'danger' : isWarning ? 'warning' : 'online';
+    const statusLabel = isCritical ? 'CRITICAL HAZARD' : isWarning ? 'WARNING / ANOMALY' : 'ONLINE / OPERATIONAL';
+    const tripTime = isCritical ? '< 5 min (Trip)' : isWarning ? '~18 min (Drift)' : '> 24 hrs';
+
+    // Machine icon
+    const icon = m.type.toLowerCase().includes('lathe') ? '⚙️'
+      : m.type.toLowerCase().includes('press') ? '🏗️'
+      : m.type.toLowerCase().includes('molder') ? '🔥'
+      : m.type.toLowerCase().includes('robot') ? '🤖'
+      : m.type.toLowerCase().includes('weld') ? '⚡'
+      : '🏭';
+
+    banner.innerHTML = `
+      <div class="wo-mlb-top">
+        <div class="wo-mlb-machine-info">
+          <div class="wo-mlb-icon">${icon}</div>
+          <div class="wo-mlb-name-wrap">
+            <h4>${m.name} <span class="badge-tag cyan">${m.type}</span></h4>
+            <div class="wo-mlb-bay">📍 ${m.bay || 'Bay ' + m.id} • Digital Twin Pod #${m.id}</div>
+          </div>
+        </div>
+        <div class="wo-mlb-status-badge ${statusClass}">
+          <span class="pulse-dot"></span>
+          <span>${statusLabel}</span>
+        </div>
+      </div>
+      <div class="wo-mlb-metrics-grid">
+        <div class="wo-metric-item">
+          <span class="wo-metric-label">Live Core Temp</span>
+          <span class="wo-metric-val ${m.temp > 80 ? 'danger-text' : m.temp > 70 ? 'warning-text' : 'safe-text'}">${m.temp}°C</span>
+        </div>
+        <div class="wo-metric-item">
+          <span class="wo-metric-label">Vibration Status</span>
+          <span class="wo-metric-val ${m.vibr !== 'Normal' ? 'warning-text' : 'safe-text'}">${m.vibr}</span>
+        </div>
+        <div class="wo-metric-item">
+          <span class="wo-metric-label">Operating Load</span>
+          <span class="wo-metric-val ${m.load > 85 ? 'warning-text' : ''}">${m.load}%</span>
+        </div>
+        <div class="wo-metric-item">
+          <span class="wo-metric-label">Failure Time Window</span>
+          <span class="wo-metric-val ${isCritical ? 'danger-text' : 'safe-text'}">${tripTime}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Priority
+  const selectPriority = document.getElementById('wo-select-priority');
+  if (selectPriority) {
+    if (m.status === 'danger' || m.temp > 80) selectPriority.value = 'Critical';
+    else if (m.status === 'warning' || m.vibr !== 'Normal' || m.load > 85) selectPriority.value = 'High';
+    else selectPriority.value = 'Normal';
+  }
+
+  // Fault diagnosis
+  const issueInput = document.getElementById('wo-issue-input');
+  if (issueInput) {
+    if (m.temp > 80) {
+      issueInput.value = `${m.name} (${m.type}) thermal runaway at ${m.temp}°C & primary cooling fluid breakdown; predicted failure in 4.8 min.`;
+    } else if (m.vibr === 'High' || m.vibr === 'Critical') {
+      issueInput.value = `${m.name} (${m.type}) 142 Hz harmonic vibration flutter (${m.vibr}) & spindle bearing race cavitation.`;
+    } else if (m.load > 88) {
+      issueInput.value = `${m.name} (${m.type}) high mechanical load surge (${m.load}%) with hydraulic line backpressure.`;
+    } else {
+      issueInput.value = `Routine preventative maintenance inspection, sensor recalibration & lubrication servicing for ${m.name}.`;
+    }
+  }
+
+  // Required Tooling & Parts
+  const partsInput = document.getElementById('wo-parts-input');
+  if (partsInput) {
+    const t = m.type.toLowerCase();
+    if (t.includes('molder')) {
+      partsInput.value = 'SKF 6205-2RS Ceramic Bearing, Glycol Chiller Filter Cartridge, Coolant 50/50 Mix';
+    } else if (t.includes('lathe')) {
+      partsInput.value = 'High-Speed Ceramic Spindle Bearings, Collet Chuck Set, V-Belt Set, Cutting Oil 20L';
+    } else if (t.includes('press')) {
+      partsInput.value = 'High-Pressure Hydraulic Seal Kit (240 bar), Proportional Spool Valve, ISO-VG 46 Fluid';
+    } else if (t.includes('robot')) {
+      partsInput.value = '6-Axis Servo Resolver, Harmonic Drive Reducer Grease, Flexible Cable Harness';
+    } else if (t.includes('weld')) {
+      partsInput.value = 'Heavy-Duty Copper Contact Tips, Gas Diffuser Solenoid, Argon Shielding Regulator';
+    } else {
+      partsInput.value = 'Industrial Synthetic Lubricant ISO 68, Replacement Filter Cartridge, Thermal Probe';
+    }
+  }
+
+  // Assigned Technician
+  const techInput = document.getElementById('wo-tech-input');
+  if (techInput) {
+    if (m.id === 1) techInput.value = 'Elena Rostova (Hydraulics & CNC Spec)';
+    else if (m.id === 2) techInput.value = 'Elena Rostova (Hydraulics Spec)';
+    else if (m.id === 3) techInput.value = 'Marcus Vance (Thermal Systems Lead)';
+    else if (m.id === 4) techInput.value = 'Sarah Chen (Robotics & Automation Lead)';
+    else if (m.id === 5) techInput.value = 'Kenji Sato (Welding Systems Spec)';
+    else techInput.value = 'Alex Rivera (Senior Maintenance Tech)';
+  }
+
+  // Barcode
+  const barcodeText = document.getElementById('wo-barcode-text');
+  if (barcodeText) {
+    barcodeText.textContent = `WO-2026-M${m.id}-LOTO`;
+  }
+}
+
 function initWorkOrders() {
+  loadPersistedWorkOrders();
   renderWorkOrdersTable();
 
   const createBtn = document.getElementById('btn-create-work-order');
   if (createBtn) {
     createBtn.addEventListener('click', () => {
-      openWorkOrderModal(3);
+      openWorkOrderModal();
       playIndustrialTone('click');
     });
   }
@@ -3603,49 +4155,134 @@ function renderWorkOrdersTable() {
   const tbody = document.getElementById('work-orders-tbody');
   if (!tbody) return;
 
-  tbody.innerHTML = state.workOrders.map(wo => `
-    <tr>
-      <td><strong>${wo.id}</strong></td>
-      <td>${wo.machineName} <br/><small class="text-muted">${wo.bay}</small></td>
-      <td><span class="badge-status-wo ${wo.priority.toLowerCase()}">${wo.priority}</span></td>
-      <td>${wo.issue}</td>
-      <td>${wo.technician}</td>
-      <td><span class="badge-tag green">${wo.status}</span></td>
-      <td>
-        <button class="alert-resolve-btn" onclick="window.resolveWorkOrder && window.resolveWorkOrder('${wo.id}')">Complete</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = state.workOrders.map(wo => {
+    const isCompleted = wo.status === 'Completed';
+    const statusBadgeClass = isCompleted ? 'safe' : (wo.priority === 'Critical' ? 'critical' : 'high');
+
+    return `
+      <tr>
+        <td><strong>${wo.id}</strong></td>
+        <td>
+          <strong>${wo.machineName}</strong><br/>
+          <small class="text-muted">${wo.bay}</small>
+        </td>
+        <td><span class="badge-status-wo ${wo.priority.toLowerCase()}">${wo.priority}</span></td>
+        <td><div style="max-width:280px; font-size:0.8rem; line-height:1.3;">${wo.issue}</div></td>
+        <td><span style="font-size:0.8rem;">👷 ${wo.technician}</span></td>
+        <td><span class="badge-status-wo ${statusBadgeClass}">${wo.status} ${isCompleted ? '✔' : ''}</span></td>
+        <td>
+          <div class="wo-table-actions">
+            ${!isCompleted ? `
+              <button class="alert-resolve-btn action-complete-wo" onclick="window.resolveWorkOrder('${wo.id}')" title="Complete & restore machine to nominal">
+                ✔ Complete
+              </button>
+            ` : `
+              <span class="wo-resolved-tag">Resolved</span>
+            `}
+            <button class="btn-wo-view" onclick="window.viewWorkOrderTicket('${wo.id}')" title="View official ticket">
+              👁 View Ticket
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 // Window global helper for completing work order
 window.resolveWorkOrder = function(id) {
   const order = state.workOrders.find(o => o.id === id);
+  if (!order) return;
+
+  order.status = 'Completed';
+
+  // Stabilize the corresponding machine!
+  const target = state.machines.find(m => m.id === order.machineId);
+  if (target) {
+    target.temp = 42;
+    target.load = 65;
+    target.vibr = 'Normal';
+    target.status = 'online';
+  }
+
+  savePersistedWorkOrders();
+  persistMachines();
+
+  renderWorkOrdersTable();
+  updateDigitalTwinDisplay();
+  renderAdminMachineTable();
+  updateAdminKpiMetrics();
+  renderRecommendations();
+  renderEffectPreview();
+
+  const machineName = target ? target.name : 'Machinery';
+  showToast(`✔ Work Order ${id} completed! ${machineName} cooled and restored to nominal online status.`, 'success');
+  playIndustrialTone('success');
+  speakAlert(`Work order ${id} resolved. ${machineName} stabilized.`);
+
+  // Sync with backend if available
+  fetch(`/api/work-orders/${id}/resolve`, { method: 'POST' }).catch(() => {});
+};
+
+// Window global helper for viewing existing ticket in modal
+window.viewWorkOrderTicket = function(ticketId) {
+  const order = state.workOrders.find(o => o.id === ticketId);
   if (order) {
-    order.status = 'Completed';
-    renderWorkOrdersTable();
-    showToast(`Work Order ${id} marked completed by lead technician`, 'success');
-    playIndustrialTone('success');
+    openWorkOrderModal(order.machineId, ticketId);
   }
 };
 
-function openWorkOrderModal(prefilledMachineId = 3) {
+function openWorkOrderModal(prefilledMachineId = null, existingTicketId = null) {
   const modal = document.getElementById('work-order-modal');
   if (!modal) return;
 
+  // Dynamically determine target machine: priority to passed ID, then active problem, else Machine 1
+  const targetId = prefilledMachineId ? parseInt(prefilledMachineId, 10) : getActiveIncidentOrProblemMachineId();
+
+  // Populate Machine Select Dropdown dynamically from state.machines!
   const selectMachine = document.getElementById('wo-select-machine');
-  if (selectMachine && prefilledMachineId) {
-    selectMachine.value = String(prefilledMachineId);
+  if (selectMachine) {
+    selectMachine.innerHTML = state.machines.map(m => {
+      const isProblem = m.status === 'danger' || m.status === 'warning' || m.temp > 65;
+      const mark = isProblem ? '⚠️ ' : '';
+      return `<option value="${m.id}" ${m.id === targetId ? 'selected' : ''}>${mark}${m.name} (${m.type}) • ${m.temp}°C [${m.status.toUpperCase()}]</option>`;
+    }).join('');
+
+    // Wire onchange
+    selectMachine.onchange = (e) => {
+      const chosenId = parseInt(e.target.value, 10);
+      updateWorkOrderFormForMachine(chosenId);
+    };
   }
 
-  const newId = `WO-2026-0${Math.floor(890 + Math.random() * 100)}`;
   const idEl = document.getElementById('wo-modal-id');
-  const barcodeText = document.getElementById('wo-barcode-text');
-  if (idEl) idEl.textContent = newId;
-  if (barcodeText) barcodeText.textContent = `${newId}-LOTO`;
+  const ticketId = existingTicketId || `WO-2026-0${Math.floor(890 + Math.random() * 100)}`;
+  if (idEl) idEl.textContent = ticketId;
+
+  // If viewing an existing ticket, load its stored values
+  if (existingTicketId) {
+    const existing = state.workOrders.find(o => o.id === existingTicketId);
+    if (existing) {
+      if (selectMachine) selectMachine.value = String(existing.machineId);
+      updateWorkOrderFormForMachine(existing.machineId);
+      const issueInput = document.getElementById('wo-issue-input');
+      const partsInput = document.getElementById('wo-parts-input');
+      const techInput = document.getElementById('wo-tech-input');
+      const selectPriority = document.getElementById('wo-select-priority');
+      if (issueInput && existing.issue) issueInput.value = existing.issue;
+      if (partsInput && existing.parts) partsInput.value = Array.isArray(existing.parts) ? existing.parts.join(', ') : existing.parts;
+      if (techInput && existing.technician) techInput.value = existing.technician;
+      if (selectPriority && existing.priority) selectPriority.value = existing.priority;
+    } else {
+      updateWorkOrderFormForMachine(targetId);
+    }
+  } else {
+    updateWorkOrderFormForMachine(targetId);
+  }
 
   modal.style.display = 'flex';
 }
+window.openWorkOrderModal = openWorkOrderModal;
 
 function closeWorkOrderModal() {
   const modal = document.getElementById('work-order-modal');
@@ -3660,45 +4297,63 @@ function submitWorkOrder() {
   const techInput = document.getElementById('wo-tech-input');
   const idEl = document.getElementById('wo-modal-id');
 
-  const machineId = parseInt(selectMachine ? selectMachine.value : '3', 10);
-  const m = state.machines.find(item => item.id === machineId) || state.machines[2];
+  const machineId = parseInt(selectMachine ? selectMachine.value : '1', 10);
+  const m = state.machines.find(item => item.id === machineId) || state.machines[0];
   const ticketId = idEl ? idEl.textContent : `WO-2026-0${Math.floor(890 + Math.random() * 100)}`;
 
-  const newOrder = {
+  const existingIndex = state.workOrders.findIndex(o => o.id === ticketId);
+
+  const orderData = {
     id: ticketId,
     machineId: m.id,
     machineName: `${m.name} (${m.type})`,
-    bay: `Bay ${m.id} - Factory Floor`,
+    bay: m.bay || `Bay ${m.id} - Factory Floor`,
     priority: selectPriority ? selectPriority.value : 'Critical',
     status: 'Dispatched',
-    issue: issueInput ? issueInput.value : 'Spindle bearing vibration and thermal runaway.',
-    parts: partsInput ? partsInput.value.split(',').map(s => s.trim()) : ['Bearing SKF', 'Coolant Filter'],
+    issue: issueInput ? issueInput.value : `${m.name} preventative servicing.`,
+    parts: partsInput ? partsInput.value.split(',').map(s => s.trim()) : ['Bearing Set', 'Coolant Filter'],
     technician: techInput ? techInput.value : 'Marcus Vance (Shift Lead)',
     lotoRequired: true,
     createdAt: 'Just now'
   };
 
-  state.workOrders.unshift(newOrder);
+  if (existingIndex >= 0) {
+    state.workOrders[existingIndex] = orderData;
+  } else {
+    state.workOrders.unshift(orderData);
+  }
+
+  savePersistedWorkOrders();
   renderWorkOrdersTable();
   closeWorkOrderModal();
 
   playIndustrialTone('success');
-  showToast(`Work Order ${ticketId} officially dispatched to ${newOrder.technician}`, 'success');
-  speakAlert(`Work order ${ticketId} dispatched to ${newOrder.technician}`);
+  showToast(`Work Order ${ticketId} officially dispatched for ${m.name} to ${orderData.technician}`, 'success');
+  speakAlert(`Work order ${ticketId} dispatched for ${m.name}`);
+
+  // Add alert in center
+  state.alerts.unshift({
+    id: Date.now(),
+    type: 'info',
+    title: `Work Order Dispatched: ${ticketId}`,
+    msg: `Technician ${orderData.technician} dispatched to ${m.name} (${orderData.bay}) for ${orderData.priority} maintenance.`,
+    time: 'Just now'
+  });
+  renderAlerts();
 
   // Sync with backend if available
   fetch('/api/work-orders', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      machine_id: newOrder.machineId,
-      machine_name: newOrder.machineName,
-      bay: newOrder.bay,
-      priority: newOrder.priority,
-      issue: newOrder.issue,
-      parts: newOrder.parts,
-      technician: newOrder.technician,
-      loto_required: newOrder.lotoRequired
+      machine_id: orderData.machineId,
+      machine_name: orderData.machineName,
+      bay: orderData.bay,
+      priority: orderData.priority,
+      issue: orderData.issue,
+      parts: orderData.parts,
+      technician: orderData.technician,
+      loto_required: orderData.lotoRequired
     })
   }).catch(() => {});
 }
@@ -3710,6 +4365,7 @@ function submitWorkOrder() {
 function initAdminFleet() {
   const openModalBtn = document.getElementById('btn-open-add-machine-modal');
   const openModalTopBtn = document.getElementById('btn-admin-add-machine-top');
+  const twinAddModalBtn = document.getElementById('btn-twin-add-machine');
   const closeModalBtn = document.getElementById('add-machine-close-btn');
   const cancelModalBtn = document.getElementById('btn-cancel-add-machine');
   const modal = document.getElementById('add-machine-modal');
@@ -3740,6 +4396,7 @@ function initAdminFleet() {
 
   if (openModalBtn) openModalBtn.addEventListener('click', openModal);
   if (openModalTopBtn) openModalTopBtn.addEventListener('click', openModal);
+  if (twinAddModalBtn) twinAddModalBtn.addEventListener('click', openModal);
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
   if (cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
 
@@ -3785,6 +4442,7 @@ function initAdminFleet() {
       };
 
       state.machines.push(newMachine);
+      persistMachines();
       closeModal();
 
       syncFloorMapWithMachines();
@@ -3794,8 +4452,19 @@ function initAdminFleet() {
       updateDigitalTwinDisplay();
 
       playIndustrialTone('success');
-      showToast(`Machine ${name} (${type}) successfully deployed to ${bay}!`, 'success');
-      speakAlert(`New machine ${name} deployed to factory floor`);
+      showToast(`✔ Machine ${name} (${type}) added! Automatically syncing into Digital Twin floor map...`, 'success');
+      speakAlert(`New machine ${name} deployed to Digital Twin`);
+
+      // Automatically navigate to the Digital Twin page and highlight the new machine
+      setTimeout(() => {
+        navigateToPage('digital-twin');
+        const pod = document.getElementById(`map-pod-${newMachine.id}`);
+        if (pod) {
+          pod.classList.add('newly-added-pulse');
+          pod.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          setTimeout(() => pod.classList.remove('newly-added-pulse'), 5000);
+        }
+      }, 450);
 
       // Attempt backend sync
       fetch('/api/machines', {
@@ -3996,7 +4665,7 @@ function updateAdminKpiMetrics() {
 }
 
 function syncFloorMapWithMachines() {
-  const stage = document.getElementById('floor-map-stage');
+  const stage = document.getElementById('interactive-floor-map') || document.getElementById('floor-map-stage');
   if (!stage) return;
 
   const coordinates = {
@@ -4016,19 +4685,20 @@ function syncFloorMapWithMachines() {
 
   state.machines.forEach(m => {
     let pod = document.getElementById(`map-pod-${m.id}`);
+    const coords = coordinates[m.id] || { left: `${15 + ((m.id * 17) % 75)}%`, top: `${25 + ((m.id * 19) % 60)}%` };
     if (!pod) {
       pod = document.createElement('div');
       pod.id = `map-pod-${m.id}`;
       pod.dataset.machine = m.id;
-      const coords = coordinates[m.id] || { left: `${15 + ((m.id * 17) % 75)}%`, top: `${25 + ((m.id * 19) % 60)}%` };
-      pod.style.left = coords.left;
-      pod.style.top = coords.top;
       stage.appendChild(pod);
-
-      pod.addEventListener('click', () => {
-        openMachineInspector(m.id);
-      });
     }
+
+    pod.style.left = coords.left;
+    pod.style.top = coords.top;
+    pod.onclick = () => {
+      openMachineInspector(m.id);
+      playIndustrialTone('click');
+    };
 
     const statusBadgeText = m.status === 'online' ? '● Online' : 
       (m.status === 'warning' ? '⚠️ High Load' : (m.status === 'danger' ? '🔴 Critical' : '⏸ Maintenance'));
@@ -4126,6 +4796,7 @@ window.toggleAdminMachineStatus = function(id) {
     showToast(`${m.name} brought back online into production!`, 'success');
   }
 
+  persistMachines();
   renderAdminMachineTable();
   updateAdminKpiMetrics();
   syncFloorMapWithMachines();
@@ -4149,6 +4820,7 @@ window.deleteAdminMachine = function(id) {
   }
 
   state.machines = state.machines.filter(item => item.id !== id);
+  persistMachines();
 
   renderAdminMachineTable();
   updateAdminKpiMetrics();
@@ -4211,11 +4883,17 @@ window.deployCompanyJourneyMilestone = function(phase) {
       speakAlert('Phase 4 Megafactory scaling milestone unlocked. 12 industrial twin units synchronized.');
     }
 
+    persistMachines();
     renderAdminMachineTable();
     updateAdminKpiMetrics();
     syncFloorMapWithMachines();
     syncMachineCardsWithMachines();
     updateDigitalTwinDisplay();
+
+    // Automatically navigate to Digital Twin page so the user sees all scaled machines
+    setTimeout(() => {
+      navigateToPage('digital-twin');
+    }, 500);
 
     // Sync with backend
     fetch('/api/admin/journey/scale', {

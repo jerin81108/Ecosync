@@ -255,33 +255,95 @@ def ingest_sensor_data(reading: SensorReading):
 @app.post("/api/approve-actions")
 def approve_actions(approval: ActionApproval):
     """
-    Manager approves recommended AI optimizations.
-    Executes automated load shifting, cooling, and frequency throttling.
+    Manager approves recommended AI optimizations (Proceed mechanism).
+    Executes automated load shifting, cooling, and frequency throttling on all affected machinery.
     """
     executed = []
-    # Machine 3 cooling & load drop
+    stabilized_machines = []
+
     for m in state["machines"]:
-        if m["id"] == 3:
-            m["temp"] = 68
-            m["load"] = 72
+        # Check if this machine is experiencing abnormal thermal, vibration, or overload
+        if m.get("status") in ["danger", "warning"] or m.get("temp", 0) > 65 or m.get("load", 0) > 85:
+            m["temp"] = 42.0
+            m["load"] = 65.0
             m["vibr"] = "Normal"
             m["status"] = "online"
-            executed.append("Machine 3 Throttled & Cooled")
-        if m["id"] == 2:
-            m["load"] = 80
-            m["status"] = "online"
-            executed.append("Machine 2 Load Rebalanced")
+            executed.append(f"{m.get('name', 'Machine')} Throttled, Cooled & Restored")
+            stabilized_machines.append(m.get("id"))
 
     # Lower overall power consumption
-    state["telemetry"]["power"] = 12.0
-    state["telemetry"]["carbon"] = round(12.0 * EMISSION_FACTOR, 2)
+    state["telemetry"]["power"] = 11.5
+    state["telemetry"]["carbon"] = round(11.5 * EMISSION_FACTOR, 2)
     state["telemetry"]["remaining"] = round(CARBON_BUDGET - state["telemetry"]["carbon"], 2)
 
     return {
         "status": "success",
         "message": "AI Optimizations successfully executed on factory line.",
         "executed_actions": executed,
+        "stabilized_machine_ids": stabilized_machines,
         "new_carbon_level": state["telemetry"]["carbon"]
+    }
+
+
+@app.post("/api/simulate/next-incident")
+def trigger_next_incident(payload: Optional[Dict[str, Any]] = None):
+    """
+    Dynamically triggers an anomaly on a DIFFERENT machine in the fleet.
+    Guarantees that every time an incident occurs, a different machine is selected.
+    """
+    machines = [m for m in state["machines"] if m.get("status") != "offline"]
+    if not machines:
+        return {"status": "error", "message": "No active machines found"}
+
+    last_id = state.get("last_incident_machine_id")
+    candidates = [m for m in machines if m["id"] != last_id]
+    if not candidates:
+        candidates = machines
+
+    chosen = random.choice(candidates)
+    state["last_incident_machine_id"] = chosen["id"]
+
+    # Reset other operational machines to safe nominal
+    for m in state["machines"]:
+        if m["id"] != chosen["id"] and m.get("status") != "offline":
+            m["temp"] = 42.0
+            m["load"] = 65.0
+            m["vibr"] = "Normal"
+            m["status"] = "online"
+
+    # Select incident type
+    incident_types = ["thermal", "vibration", "hydraulic", "stator"]
+    i_type = random.choice(incident_types)
+    if i_type == "thermal":
+        chosen["temp"] = random.randint(87, 93)
+        chosen["load"] = random.randint(95, 99)
+        chosen["vibr"] = "Critical"
+        chosen["status"] = "danger"
+    elif i_type == "vibration":
+        chosen["temp"] = random.randint(76, 80)
+        chosen["load"] = random.randint(90, 95)
+        chosen["vibr"] = "High"
+        chosen["status"] = "warning"
+    elif i_type == "hydraulic":
+        chosen["temp"] = random.randint(81, 85)
+        chosen["load"] = random.randint(92, 96)
+        chosen["vibr"] = "High"
+        chosen["status"] = "warning"
+    else:
+        chosen["temp"] = random.randint(85, 89)
+        chosen["load"] = 97.0
+        chosen["vibr"] = "Critical"
+        chosen["status"] = "danger"
+
+    state["telemetry"]["power"] = round(17.5 + random.uniform(0.5, 2.5), 1)
+    state["telemetry"]["carbon"] = round(state["telemetry"]["power"] * EMISSION_FACTOR, 2)
+    state["telemetry"]["remaining"] = round(CARBON_BUDGET - state["telemetry"]["carbon"], 2)
+
+    return {
+        "status": "success",
+        "affected_machine": chosen,
+        "incident_type": i_type,
+        "message": f"Incident triggered on {chosen['name']} ({chosen['type']})"
     }
 
 
@@ -321,6 +383,31 @@ def create_work_order(wo: WorkOrderCreate):
     }
     state.setdefault("work_orders", []).insert(0, order)
     return {"status": "success", "work_order": order}
+
+
+@app.post("/api/work-orders/{wo_id}/resolve")
+def resolve_work_order(wo_id: str):
+    """
+    Marks a work order ticket as Completed and stabilizes the corresponding machinery.
+    """
+    target_wo = None
+    for order in state.get("work_orders", []):
+        if order.get("id") == wo_id:
+            order["status"] = "Completed"
+            target_wo = order
+            break
+
+    # If associated with a machine, restore it to safe nominal
+    if target_wo and "machine_id" in target_wo:
+        for m in state["machines"]:
+            if m["id"] == target_wo["machine_id"]:
+                m["temp"] = 42.0
+                m["load"] = 65.0
+                m["vibr"] = "Normal"
+                m["status"] = "online"
+                break
+
+    return {"status": "success", "resolved_id": wo_id}
 
 
 # ==================== MACHINE FLEET & ADMIN SCALING ENDPOINTS ====================

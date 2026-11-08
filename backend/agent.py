@@ -29,14 +29,25 @@ class DigitalTwinAIAgent:
         power = current.get("power", 15.0)
         carbon_emitted = current.get("carbon", round(power * 0.82, 2))
 
-        m3 = None
-        m2 = None
+        # Identify any problem machine dynamically from the fleet
+        problem_machine = None
+        strain_machine = None
         if machines:
-            m3 = next((m for m in machines if m.get("id") == 3), None)
-            m2 = next((m for m in machines if m.get("id") == 2), None)
+            # Overheating / Danger machine
+            problem_machine = next((m for m in machines if m.get("status") == "danger" or m.get("temp", 0) > 72), None)
+            # Vibration / Hydraulic Strain machine
+            strain_machine = next((m for m in machines if m != problem_machine and (m.get("status") == "warning" or m.get("vibr") in ["High", "Critical"] or m.get("load", 0) >= 88)), None)
 
-        m3_temp = m3.get("temp", temp) if m3 else temp
-        m3_is_mitigated = (m3 and m3.get("temp", 90) <= 70 and m3.get("status") == "online")
+        p_name = problem_machine.get("name", "Machine 3") if problem_machine else "Machine 3"
+        p_id = problem_machine.get("id", 3) if problem_machine else 3
+        p_type = problem_machine.get("type", "Injection Molder") if problem_machine else "Injection Molder"
+        p_bay = problem_machine.get("bay", f"Bay {p_id}") if problem_machine else "Bay 3"
+        p_temp = problem_machine.get("temp", temp) if problem_machine else temp
+        p_is_mitigated = bool(problem_machine and problem_machine.get("temp", 90) <= 70 and problem_machine.get("status") == "online")
+
+        s_name = strain_machine.get("name", "Machine 2") if strain_machine else "Machine 2"
+        s_id = strain_machine.get("id", 2) if strain_machine else 2
+        s_type = strain_machine.get("type", "Hydraulic Press") if strain_machine else "Hydraulic Press"
 
         # Baseline predictions
         predictions = []
@@ -50,32 +61,32 @@ class DigitalTwinAIAgent:
                 temp_trend_up = True
 
         # Determine active situations
-        is_overheat = (not m3_is_mitigated) and (m3_temp > 72 or (m3_temp > 48 and temp_trend_up))
-        is_carbon_spike = (carbon_emitted > 22.0 or co2 > 520.0 or power > 20.0)
-        is_m2_strain = bool(m2 and (m2.get("vibr") in ["High", "Critical"] or m2.get("temp", 0) > 74 or m2.get("load", 0) >= 88))
-        is_throttled_deficit = bool(m3_is_mitigated and m3 and m3.get("load", 100) <= 80)
+        is_overheat = bool(problem_machine and not p_is_mitigated and (p_temp > 70 or (p_temp > 48 and temp_trend_up)))
+        is_carbon_spike = bool(carbon_emitted > 22.0 or co2 > 520.0 or power > 20.0)
+        is_m2_strain = bool(strain_machine and (strain_machine.get("vibr") in ["High", "Critical"] or strain_machine.get("temp", 0) > 74 or strain_machine.get("load", 0) >= 88))
+        is_throttled_deficit = bool(p_is_mitigated and problem_machine and problem_machine.get("load", 100) <= 80)
         is_nominal = not (is_overheat or is_carbon_spike or is_m2_strain)
 
         # 1. Thermal Runaway / Overheating Evaluation
         if is_overheat:
-            prob = min(98, int(70 + (m3_temp - 45) * 1.2))
+            prob = min(98, int(70 + (p_temp - 45) * 1.2))
             predictions.append({
                 "id": "pred-overheat",
-                "title": f"Machine-3 Critical Overheating Alert ({m3_temp:.1f}°C)",
-                "desc": f"Spindle thermal velocity (+{((m3_temp-40)/12):.1f}°C/min) predicts thermal trip within 4.8 minutes.",
+                "title": f"{p_name} Critical Overheating Alert ({p_temp:.1f}°C)",
+                "desc": f"Spindle thermal velocity on {p_type} predicts thermal trip within 4.8 minutes.",
                 "prob": prob,
                 "severity": "danger",
                 "tag": "Critical"
             })
             recommendations.append({
-                "id": "rec-throttle-m3",
-                "title": f"Throttle Machine-3 Speed by 25% (Target: 68°C)",
-                "desc": f"Reduces mechanical friction and arrests stator coil thermal escalation currently at {m3_temp:.1f}°C.",
-                "impact": "⚡ Halts thermal trip & saves 3.8 kWh",
+                "id": f"rec-throttle-m{p_id}",
+                "title": f"Throttle {p_name} Speed by 25% (Target: 44°C)",
+                "desc": f"Reduces mechanical friction and arrests thermal escalation on {p_type} in {p_bay} currently at {p_temp:.1f}°C.",
+                "impact": f"⚡ Halts {p_name} thermal trip & saves 3.8 kWh",
                 "production_loss": "-18.4% throughput (~160 units/hr)",
                 "revenue_loss": "-$3,850 / shift deficit",
                 "workers_needed": 4,
-                "worker_action": "Deploy 4 Auxiliary Technicians on Finishing Line to manually compensate throughput drop",
+                "worker_action": f"Deploy 4 Auxiliary Technicians on {p_bay} line to manually compensate throughput drop",
                 "worker_cost": "$1,200 / shift",
                 "damage_averted": "+$45,000 catastrophic stator burnout averted",
                 "net_benefit": "+$39,950 net shift protection",
@@ -83,9 +94,9 @@ class DigitalTwinAIAgent:
                 "executed": False
             })
             recommendations.append({
-                "id": "rec-chiller-b",
-                "title": "Engage Secondary Glycol Chiller Unit B (Loop 3)",
-                "desc": "Forces active 8°C heat exchange fluid through hydraulic manifolds to purge core heat.",
+                "id": f"rec-chiller-m{p_id}",
+                "title": f"Engage Secondary Glycol Chiller for {p_name}",
+                "desc": f"Forces active 8°C heat exchange fluid through {p_type} manifolds to purge core heat.",
                 "impact": "❄ Drops operating temp by ~14°C within 5 mins",
                 "production_loss": "-3.5% auxiliary thermal draw",
                 "revenue_loss": "-$480 / shift coolant & power cost",
@@ -99,8 +110,8 @@ class DigitalTwinAIAgent:
             })
             recommendations.append({
                 "id": "rec-manpower-overheat",
-                "title": "Deploy Auxiliary Floor Technicians (+4 on Line 4)",
-                "desc": "Offsets the -18.4% throughput loss from Machine-3 throttling to safeguard shift revenue ($24,000 target).",
+                "title": f"Deploy Auxiliary Floor Technicians (+4 on {p_bay})",
+                "desc": f"Offsets the -18.4% throughput loss from {p_name} throttling to safeguard shift revenue ($24,000 target).",
                 "impact": "👥 Restores line throughput to 100%",
                 "production_loss": "0.0% (Compensates for -18.4% deficit)",
                 "revenue_loss": "$0 (Secures $24,000 daily quota)",
@@ -112,19 +123,19 @@ class DigitalTwinAIAgent:
                 "checked": True,
                 "executed": False
             })
-        elif m3_is_mitigated:
+        elif p_is_mitigated:
             predictions.append({
                 "id": "pred-overheat",
-                "title": "Machine-3 Thermal Stability (Mitigated)",
-                "desc": f"Spindle stabilized at {m3_temp:.1f}°C. Closed-loop cooling active.",
+                "title": f"{p_name} Thermal Stability (Mitigated)",
+                "desc": f"{p_type} spindle stabilized at {p_temp:.1f}°C. Closed-loop cooling active.",
                 "prob": 12,
                 "severity": "info",
                 "tag": "Stabilized"
             })
             recommendations.append({
-                "id": "rec-throttle-m3",
-                "title": "Machine-3 Safety Throttle Active (Load: 72%)",
-                "desc": "Operating load held at -25% to sustain thermal safety margin.",
+                "id": f"rec-throttle-m{p_id}",
+                "title": f"{p_name} Safety Throttle Active (Load: 68%)",
+                "desc": f"Operating load held at safe cadence to sustain thermal safety margin.",
                 "impact": "✔ Thermal trip averted & coil preserved",
                 "production_loss": "-18.4% without auxiliary workforce",
                 "revenue_loss": "-$3,850 if uncompensated",
@@ -150,31 +161,31 @@ class DigitalTwinAIAgent:
             })
             recommendations.append({
                 "id": "rec-scrubber",
-                "title": "Engage Flue Gas Scrubber & Carbon Adsorber",
-                "desc": "Routes exhaust stream through catalytic filtration bed to neutralize direct CO₂ release.",
-                "impact": "🌍 Lowers direct stack CO₂ output by 35%",
-                "production_loss": "-4.2% conveyor parasitic load",
-                "revenue_loss": "-$620 / shift reagent consumption",
-                "workers_needed": 2,
-                "worker_action": "Deploy 2 Environmental Chemical Technicians for catalytic cartridge replenishment",
-                "worker_cost": "$600 / shift",
-                "damage_averted": "+$14,500 statutory emissions fine & stop-work penalty",
-                "net_benefit": "+$13,280 net savings",
+                "title": "Turn On Carbon Scrubber Filter",
+                "desc": "Cleans chimney smoke to instantly lower carbon emissions.",
+                "impact": "🌍 Cuts factory CO₂ emissions by 35%",
+                "production_loss": "Minor 2% conveyor power drop",
+                "revenue_loss": "-$200 / shift filter cost",
+                "workers_needed": 1,
+                "worker_action": "1 technician to inspect filter cartridge",
+                "worker_cost": "$250 / shift",
+                "damage_averted": "+$14,500 pollution fine avoided",
+                "net_benefit": "+$14,050 clean savings",
                 "checked": True,
                 "executed": False
             })
             recommendations.append({
                 "id": "rec-bess-peak",
-                "title": "Activate Battery Storage (BESS) Peak-Shaving",
-                "desc": f"Supplies {min(9.5, round(power*0.35, 1))} kWh from clean stored solar reserves to bypass grid peak tariffs.",
-                "impact": "⚡ Averts $420 peak demand tariff penalty",
-                "production_loss": "0.0% throughput impact",
-                "revenue_loss": "-$180 battery cycle amortization",
-                "workers_needed": 1,
-                "worker_action": "Assign 1 Electrical Systems Specialist to oversee inverter synchronization",
-                "worker_cost": "$280 / shift",
-                "damage_averted": "+$4,800 peak utility surge tariff avoided",
-                "net_benefit": "+$4,340 net cost reduction",
+                "title": "Switch to Clean Solar Battery Power",
+                "desc": "Runs machines on stored rooftop solar energy instead of dirty grid power.",
+                "impact": "⚡ Saves 5.2 kWh & stops carbon limit breach",
+                "production_loss": "0% throughput loss (seamless)",
+                "revenue_loss": "$0 / shift",
+                "workers_needed": 0,
+                "worker_action": "Automated clean power switch (no manual labor)",
+                "worker_cost": "$0",
+                "damage_averted": "+$4,800 peak tariff fine avoided",
+                "net_benefit": "+$4,800 net savings",
                 "checked": True,
                 "executed": False
             })
@@ -188,26 +199,26 @@ class DigitalTwinAIAgent:
                 "tag": "Nominal"
             })
 
-        # 3. Mechanical Strain / Hydraulic Press Evaluation
+        # 3. Mechanical Strain / Vibration Evaluation
         if is_m2_strain:
-            m2_load = m2.get("load", 92) if m2 else 92
+            s_load = strain_machine.get("load", 92) if strain_machine else 92
             predictions.append({
                 "id": "pred-m2-failure",
-                "title": f"Machine-2 Hydraulic Valve Fatigue (Load: {m2_load}%)",
-                "desc": "142 Hz harmonic vibration detected. High likelihood of hydraulic micro-cavitation and valve failure.",
+                "title": f"{s_name} Mechanical Stress Alert (Load: {s_load}%)",
+                "desc": f"Resonant harmonic vibration detected on {s_type}. High likelihood of mechanical micro-cavitation and valve failure.",
                 "prob": 88,
                 "severity": "warning",
                 "tag": "High Risk"
             })
             recommendations.append({
-                "id": "rec-hydraulic-damp",
-                "title": "Relieve Hydraulic Pressure to 80% & Close Bypass Valve",
-                "desc": "Dampens 142 Hz resonant harmonic oscillation and relieves valve manifold stress.",
-                "impact": "🛡 Prevents catastrophic $18,000 pump rupture",
-                "production_loss": "-8.0% stamping cycle tempo",
+                "id": f"rec-damp-m{s_id}",
+                "title": f"Relieve Mechanical Stress on {s_name} (Cadence: 75%)",
+                "desc": f"Dampens resonant harmonic oscillation and relieves component stress on {s_type}.",
+                "impact": f"🛡 Prevents catastrophic {s_name} equipment damage",
+                "production_loss": "-8.0% cycle tempo",
                 "revenue_loss": "-$1,450 / shift throughput delay",
                 "workers_needed": 2,
-                "worker_action": "Assign 2 Tooling Technicians to oversee hydraulic pressure calibration",
+                "worker_action": f"Assign 2 Tooling Technicians to oversee {s_name} calibration",
                 "worker_cost": "$550 / shift",
                 "damage_averted": "+$28,000 cylinder blow-out & die cracking averted",
                 "net_benefit": "+$26,000 net protection",
@@ -215,9 +226,9 @@ class DigitalTwinAIAgent:
                 "executed": False
             })
             recommendations.append({
-                "id": "rec-balance-m2",
-                "title": "Shift Batch #409 Workload to Assembly Robot 4",
-                "desc": "Diverts heavy stamping queue to balanced robotic cell to unload Hydraulic Press 2.",
+                "id": f"rec-balance-m{s_id}",
+                "title": f"Shift {s_name} Workload to Alternate Line Cells",
+                "desc": f"Diverts heavy processing queue to balanced automated cells to unload {s_name}.",
                 "impact": "⚖ Balances line load & reduces cycle strain by 32%",
                 "production_loss": "-2.5% during staging transfer",
                 "revenue_loss": "-$380 staging handling",
